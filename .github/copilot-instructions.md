@@ -1,0 +1,49 @@
+# Application Dashboard
+The project is about a app that acts as Application dashboard (like Heimdall or HomeScreen applications). It includes Home Screen with shortcuts to URL or local addresses.
+The project includes user registration and one admininstrator witch manages all users.
+Each user should be able to register and in its own dashboard to create shortcuts with icons whitch points to a location in the local network or public URL.
+The administrator should be able to manage all users and their shortcuts, e.g. delete inappropriate shortcuts, block users, etc.
+
+## Technologies
+    • Frontend: Implement your app in HTML, CSS, JavaScript, Vite and Bootstrap. Use simple but looking good UI libraries and components. Keep it simple, without TypeScript and UI frameworks like React and Vite.
+    • Backend: Use Supabase as a backend (database, authentication and storage).
+## Architecture
+    • Use Node.js, npm and Vite to structure your app.
+    • Use multi-page navigation (instead of single page with popups) and keep each page in separate file.
+    • Use modular design: split your app into self-contained components (e.g. UI pages, services, utils) to improve project maintenance. When reasonable, use separate files for the UI, business logic, styles, and other app assets. Avoid big and complex monolith code.
+## User Interface (UI)
+    • Implement minimum 5 app screens (pages / popups / others).
+    • Example: register, login, main page, view / add / edit / delete entity and admin panel.
+    • Keep different app screens in separate files (for higher maintenance).
+    • Use Bootstrap components and utilities to create a clean, responsive and user-friendly UI.
+    • Implement  modern, responsive UI design with semantic HTML.
+## Backend
+    • Use Supabase as a backend to keep all your app data.
+    • Use Supabase DB for data tables.
+    • Use Supabase Auth for authentication (users, register, login, logout).
+    • Use Supabase Storage to upload photos and files at the server-side.
+    • Optionally, use Supabase Edge Functions for special server-side interactions.
+## Authentication
+    • Use Supabase Auth for authentication.
+    • Implement users (register, login, logout) and roles (normal and admin users).
+    • Implement admin panel (or similar concept for special users, different from regular).
+## Database
+    • The database should hold minimum 4 DB tables (with relationships when needed).
+    • Example (blog): users, profiles, articles, photos. Example (social network): users, posts, photos, comments.
+    • Keep the database schema as DB migrations scripts in a local folder.
+    • The Supabase will be connected via MCP
+    • When changing the database schema, always use Supabase Migrations to keep track and changes.
+    • After applying the migrations in Supabase, keep a copy of the migration SQL files in the code.
+## Storage
+    • The app should store user files (like photos and documents) in Supabase Storage.
+    • The project should use file upload and download somewhere, e.g. profile pictures or product photos.
+## Deployment
+    • The project should be deployed live on the Internet in this case in Netlify.
+    • Provide sample credentials (e.g. demo / demo123) to simplify testing the app.
+## Pages and Navigation
+    • Use routing to navigate between pages.
+    • Use full URLs like: /, /login, /register, /dashboards, /admin, etc.
+## Authentication and Authorization
+    • Use Supabase Auth for user authentication and authorization.
+    • Implement RLS policies to restrict access to data based on user roles and permissions.
+    • Implement user roles with separate DB table `user_roles`  + enum `roles` (e.g. admin, user, etc.).
