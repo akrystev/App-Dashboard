@@ -2,6 +2,7 @@
 import { Page } from './page.js'
 import { auth, supabase } from '../services/supabase.js'
 import { NavBar } from '../components/navbar.js'
+import * as bootstrap from 'bootstrap/dist/js/bootstrap.bundle.js'
 
 export class SettingsPage extends Page {
     constructor(container, router) {
