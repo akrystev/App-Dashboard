@@ -257,6 +257,23 @@ h6 {
     text-align: center;
 }
 
+/* Profile Picture Styles */
+.profile-picture-large {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4rem;
+    margin: 0 auto;
+    border: 3px solid #e9ecef;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .container {
