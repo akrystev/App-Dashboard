@@ -5,6 +5,26 @@ export class IndexPage extends Page {
     constructor(container, router) {
         super(container, router)
         this.title = 'Home - App Dashboard'
+        this.demoShortcuts = [
+            {
+                name: 'Home Lab',
+                url: 'http://192.168.1.50:3000',
+                icon: 'bi-cpu',
+                description: 'Local services dashboard'
+            },
+            {
+                name: 'Docs',
+                url: 'https://example.com/docs',
+                icon: 'bi-journal-text',
+                description: 'Reference notes and guides'
+            },
+            {
+                name: 'Status',
+                url: 'https://status.example.com',
+                icon: 'bi-activity',
+                description: 'Uptime monitoring'
+            }
+        ]
     }
 
     async render() {
@@ -20,9 +40,6 @@ export class IndexPage extends Page {
           <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
               <li class="nav-item">
-                <a class="nav-link" href="#/dashboard">Dashboard</a>
-              </li>
-              <li class="nav-item">
                 <a class="nav-link" href="#/login">Login</a>
               </li>
             </ul>
@@ -34,8 +51,19 @@ export class IndexPage extends Page {
         <h1>Welcome to Application Dashboard</h1>
         <p class="lead">Your central hub for app shortcuts and management</p>
         <div class="mt-4">
-          <a href="#/dashboard" class="btn btn-primary btn-lg me-2">Go to Dashboard</a>
-          <a href="#/login" class="btn btn-outline-primary btn-lg">Login</a>
+          <a href="#/login" class="btn btn-primary btn-lg">Login</a>
+        </div>
+      </div>
+
+      <div class="container mt-5 mb-5">
+        <div class="row mb-3">
+          <div class="col text-center">
+            <h4 class="mb-1">Demo Dashboard</h4>
+            <p class="text-muted mb-0">Preview how your shortcuts will look after login</p>
+          </div>
+        </div>
+        <div class="row" id="demoShortcuts">
+          ${this.renderDemoShortcuts()}
         </div>
       </div>
     `
@@ -54,5 +82,30 @@ export class IndexPage extends Page {
                 this.router.push(path)
             })
         })
+    }
+
+    renderDemoShortcuts() {
+        return this.demoShortcuts
+            .map(
+                shortcut => `
+        <div class="col-md-4 mb-4">
+          <div class="card shortcut-card h-100">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start mb-3">
+                <i class="bi ${shortcut.icon} display-6 text-primary"></i>
+                <span class="badge bg-secondary">Demo</span>
+              </div>
+              <h5 class="card-title">${this.escapeHtml(shortcut.name)}</h5>
+              <p class="card-text text-muted text-truncate">${this.escapeHtml(shortcut.url)}</p>
+              <p class="card-text small">${this.escapeHtml(shortcut.description)}</p>
+              <button class="btn btn-sm btn-outline-secondary mt-2" disabled>
+                <i class="bi bi-lock"></i> Login to Open
+              </button>
+            </div>
+          </div>
+        </div>
+      `
+            )
+            .join('')
     }
 }
