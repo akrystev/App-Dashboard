@@ -2,6 +2,11 @@
 import { Page } from './page.js'
 
 export class IndexPage extends Page {
+    constructor(container, router) {
+        super(container, router)
+        this.title = 'Home - App Dashboard'
+    }
+
     async render() {
         this.container.innerHTML = `
       <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -37,6 +42,7 @@ export class IndexPage extends Page {
 
         // Add event listeners for navigation
         this.setupNavigation()
+        this.setPageTitle()
     }
 
     setupNavigation() {
