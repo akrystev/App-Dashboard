@@ -17,16 +17,22 @@ export class Router {
     }
 
     init() {
-        // Handle initial route
-        this.navigate(window.location.pathname)
+        // Handle initial route based on hash
+        this.navigate(this.getHashRoute(), { updateHash: false })
 
-        // Handle browser back/forward buttons
-        window.addEventListener('popstate', (event) => {
-            this.navigate(event.state?.path || '/')
+        // Handle hash changes
+        window.addEventListener('hashchange', () => {
+            this.navigate(this.getHashRoute(), { updateHash: false })
         })
     }
 
-    async navigate(path) {
+    getHashRoute() {
+        const hash = window.location.hash || '#/'
+        const route = hash.replace(/^#/, '') || '/'
+        return route.startsWith('/') ? route : `/${route}`
+    }
+
+    async navigate(path, options = { updateHash: true }) {
         const route = path || '/'
         const PageComponent = this.routes[route]
 
@@ -45,7 +51,9 @@ export class Router {
         await this.currentPage.render()
 
         // Update browser history
-        window.history.pushState({ path: route }, '', route)
+        if (options.updateHash) {
+            window.location.hash = route
+        }
     }
 
     push(path) {
