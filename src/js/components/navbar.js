@@ -6,7 +6,7 @@ export class NavBar {
         return `
       <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
         <div class="container-fluid">
-          <a class="navbar-brand" href="#/">
+          <a class="navbar-brand" href="#/dashboard">
             <i class="bi bi-speedometer2"></i> App Dashboard
           </a>
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
