@@ -2,6 +2,7 @@
 import { IndexPage } from './pages/index-page.js'
 import { DashboardPage } from './pages/dashboard-page.js'
 import { LoginPage } from './pages/login-page.js'
+import { SettingsPage } from './pages/settings-page.js'
 
 export class Router {
     constructor(appContainer) {
@@ -9,7 +10,8 @@ export class Router {
         this.routes = {
             '/': IndexPage,
             '/dashboard': DashboardPage,
-            '/login': LoginPage
+            '/login': LoginPage,
+            '/settings': SettingsPage
         }
         this.currentPage = null
     }

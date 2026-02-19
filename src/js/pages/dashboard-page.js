@@ -40,13 +40,13 @@ export class DashboardPage extends Page {
                 <a class="nav-link" href="#/">Home</a>
               </li>
               <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                   <i class="bi bi-person-circle"></i> ${this.user.email}
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end">
-                  <li><a class="dropdown-item" href="#/settings">Settings</a></li>
+                  <li><a class="dropdown-item nav-settings-link" href="#/settings">Settings</a></li>
                   <li><hr class="dropdown-divider"></li>
-                  <li><a class="dropdown-item" id="logoutBtn" href="#">Logout</a></li>
+                  <li><button class="dropdown-item" id="logoutBtn" style="border: none; background: none; cursor: pointer; text-align: left; width: 100%; padding: 0.5rem 1rem;">Logout</button></li>
                 </ul>
               </li>
             </ul>
@@ -57,14 +57,9 @@ export class DashboardPage extends Page {
       <div class="container mt-5 mb-5">
         <!-- Header Section -->
         <div class="row mb-5">
-          <div class="col-md-8">
+          <div class="col">
             <h1 class="mb-2">Welcome, ${this.user.email.split('@')[0]}! 👋</h1>
             <p class="text-muted">Manage your application shortcuts and quick links</p>
-          </div>
-          <div class="col-md-4 text-md-end">
-            <button class="btn btn-primary btn-lg" id="addShortcutBtn">
-              <i class="bi bi-plus-circle"></i> Add Shortcut
-            </button>
           </div>
         </div>
 
@@ -187,7 +182,8 @@ export class DashboardPage extends Page {
     }
 
     setupEventListeners() {
-        const links = this.container.querySelectorAll('a[href^="#"]')
+        // Get all navigation links (exclude dropdown toggles)
+        const navigationLinks = this.container.querySelectorAll('a[href^="#"]:not(.dropdown-toggle)')
         const logoutBtn = this.container.querySelector('#logoutBtn')
         const addShortcutBtn = this.container.querySelector('#addShortcutBtn')
         const addFirstShortcutBtn = this.container.querySelector('#addFirstShortcutBtn')
@@ -196,7 +192,7 @@ export class DashboardPage extends Page {
         const deleteButtons = this.container.querySelectorAll('.delete-shortcut-btn')
 
         // Navigation links
-        links.forEach(link => {
+        navigationLinks.forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault()
                 const path = link.getAttribute('href').substring(1) || '/'
@@ -204,7 +200,7 @@ export class DashboardPage extends Page {
             })
         })
 
-        // Logout
+        // Logout button
         logoutBtn?.addEventListener('click', (e) => {
             e.preventDefault()
             this.handleLogout()

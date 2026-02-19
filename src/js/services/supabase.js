@@ -38,6 +38,13 @@ export const auth = {
         return user
     },
 
+    async updatePassword(password) {
+        const { data, error } = await supabase.auth.updateUser({
+            password: password
+        })
+        return { data, error }
+    },
+
     async onAuthStateChange(callback) {
         return supabase.auth.onAuthStateChange(callback)
     }
