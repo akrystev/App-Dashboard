@@ -19,6 +19,11 @@ export class Router {
     }
 
     init() {
+        // Normalize to hash-based routing on the root path
+        if (!window.location.hash) {
+            window.history.replaceState({}, '', '/#/')
+        }
+
         // Handle initial route based on hash
         this.navigate(this.getHashRoute(), { updateHash: false })
 
@@ -54,7 +59,8 @@ export class Router {
 
         // Update browser history
         if (options.updateHash) {
-            window.location.hash = route
+            window.history.pushState({ path: route }, '', `/#${route}`)
+            window.dispatchEvent(new HashChangeEvent('hashchange'))
         }
     }
 

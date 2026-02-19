@@ -17,9 +17,6 @@ export class NavBar {
               <li class="nav-item">
                 <a class="nav-link ${activePage === 'dashboard' ? 'active' : ''}" href="#/dashboard">Dashboard</a>
               </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#/">Home</a>
-              </li>
             </ul>
             
             <!-- User Panel -->
