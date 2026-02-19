@@ -1,5 +1,5 @@
 # Application Dashboard
-The project is about a app that acts as Application dashboard (like Heimdall or HomeScreen applications). It includes Home Screen with shortcuts to URL or local addresses.
+The project is about a app that acts as Personal Application dashboard (like Heimdall or HomeScreen applications). It includes Home Screen with shortcuts to URL or local addresses.
 The project includes user registration and one admininstrator witch manages all users.
 Each user should be able to register and in its own dashboard to create shortcuts with icons whitch points to a location in the local network or public URL.
 The administrator should be able to manage all users and their shortcuts, e.g. delete inappropriate shortcuts, block users, etc.
