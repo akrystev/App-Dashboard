@@ -1,13 +1,27 @@
 // Dashboard Page
 import { Page } from './page.js'
+import { auth, supabase } from '../services/supabase.js'
 
 export class DashboardPage extends Page {
     constructor(container, router) {
         super(container, router)
         this.title = 'Dashboard - App Dashboard'
+        this.user = null
+        this.shortcuts = []
+        this.isLoading = false
     }
 
     async render() {
+        // Check if user is authenticated
+        this.user = await auth.getCurrentUser()
+        if (!this.user) {
+            this.router.push('/login')
+            return
+        }
+
+        // Load shortcuts
+        await this.loadShortcuts()
+
         this.container.innerHTML = `
       <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container-fluid">
@@ -23,48 +37,165 @@ export class DashboardPage extends Page {
                 <a class="nav-link active" href="#/dashboard">Dashboard</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="#/logout">Logout</a>
+                <a class="nav-link" href="#/">Home</a>
+              </li>
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                  <i class="bi bi-person-circle"></i> ${this.user.email}
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end">
+                  <li><a class="dropdown-item" href="#/settings">Settings</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item" id="logoutBtn" href="#">Logout</a></li>
+                </ul>
               </li>
             </ul>
           </div>
         </div>
       </nav>
 
-      <div class="container mt-5">
-        <div class="row mb-4">
-          <div class="col">
-            <h1>Dashboard</h1>
+      <div class="container mt-5 mb-5">
+        <!-- Header Section -->
+        <div class="row mb-5">
+          <div class="col-md-8">
+            <h1 class="mb-2">Welcome, ${this.user.email.split('@')[0]}! 👋</h1>
+            <p class="text-muted">Manage your application shortcuts and quick links</p>
+          </div>
+          <div class="col-md-4 text-md-end">
+            <button class="btn btn-primary btn-lg" id="addShortcutBtn">
+              <i class="bi bi-plus-circle"></i> Add Shortcut
+            </button>
           </div>
         </div>
 
-        <div class="row">
-          <div class="col-md-3 mb-3">
-            <div class="card">
-              <div class="card-body text-center">
-                <i class="bi bi-plus-circle display-4 text-primary mb-3"></i>
-                <h5 class="card-title">Add Shortcut</h5>
-                <p class="card-text">Create a new shortcut</p>
-              </div>
+        <!-- Alert Messages -->
+        <div id="errorAlert" class="alert alert-danger d-none" role="alert"></div>
+        <div id="successAlert" class="alert alert-success d-none" role="alert"></div>
+
+        <!-- Shortcuts Grid -->
+        <div class="row" id="shortcutsContainer">
+          ${this.renderShortcuts()}
+        </div>
+      </div>
+
+      <!-- Add/Edit Shortcut Modal -->
+      <div class="modal fade" id="shortcutModal" tabindex="-1">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="modalTitle">Add Shortcut</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-          </div>
-        </div>
-
-        <div class="row mt-4">
-          <div class="col">
-            <h5>Your Shortcuts</h5>
-            <p class="text-muted">No shortcuts yet. Create one to get started!</p>
+            <div class="modal-body">
+              <form id="shortcutForm">
+                <div class="mb-3">
+                  <label for="shortcutName" class="form-label">Name</label>
+                  <input type="text" class="form-control" id="shortcutName" required>
+                </div>
+                <div class="mb-3">
+                  <label for="shortcutUrl" class="form-label">URL or Local Address</label>
+                  <input type="text" class="form-control" id="shortcutUrl" placeholder="https://example.com or http://192.168.1.100:8080" required>
+                </div>
+                <div class="mb-3">
+                  <label for="shortcutIcon" class="form-label">Icon (Bootstrap Icon Class)</label>
+                  <input type="text" class="form-control" id="shortcutIcon" placeholder="bi-plus-circle" value="bi-link-45deg">
+                </div>
+                <div class="mb-3">
+                  <label for="shortcutDescription" class="form-label">Description</label>
+                  <textarea class="form-control" id="shortcutDescription" rows="2"></textarea>
+                </div>
+              </form>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+              <button type="button" class="btn btn-primary" id="saveShortcutBtn">Save Shortcut</button>
+            </div>
           </div>
         </div>
       </div>
     `
 
-        // Add event listeners for navigation
-        this.setupNavigation()
+        this.setupEventListeners()
         this.setPageTitle()
     }
 
-    setupNavigation() {
+    renderShortcuts() {
+        if (this.shortcuts.length === 0) {
+            return `
+        <div class="col-12">
+          <div class="alert alert-info text-center py-5" role="alert">
+            <i class="bi bi-inbox display-1 text-info d-block mb-3"></i>
+            <h5>No shortcuts yet</h5>
+            <p class="mb-3 text-muted">Create your first shortcut to get started!</p>
+            <button class="btn btn-primary" id="addFirstShortcutBtn">
+              <i class="bi bi-plus-circle"></i> Create Shortcut
+            </button>
+          </div>
+        </div>
+      `
+        }
+
+        return this.shortcuts
+            .map(
+                shortcut => `
+        <div class="col-md-4 mb-4">
+          <div class="card shortcut-card h-100">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start mb-3">
+                <i class="bi ${shortcut.icon || 'bi-link-45deg'} display-6 text-primary"></i>
+                <div class="btn-group btn-group-sm" role="group">
+                  <button class="btn btn-outline-secondary edit-shortcut-btn" data-id="${shortcut.id}">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                  <button class="btn btn-outline-danger delete-shortcut-btn" data-id="${shortcut.id}">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+              </div>
+              <h5 class="card-title">${this.escapeHtml(shortcut.name)}</h5>
+              <p class="card-text text-muted text-truncate">${this.escapeHtml(shortcut.url)}</p>
+              ${shortcut.description ? `<p class="card-text small">${this.escapeHtml(shortcut.description)}</p>` : ''}
+              <a href="${this.escapeHtml(shortcut.url)}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-primary mt-2">
+                <i class="bi bi-arrow-up-right"></i> Open
+              </a>
+            </div>
+          </div>
+        </div>
+      `
+            )
+            .join('')
+    }
+
+    async loadShortcuts() {
+        try {
+            const { data, error } = await supabase
+                .from('shortcuts')
+                .select('*')
+                .eq('user_id', this.user.id)
+                .order('created_at', { ascending: false })
+
+            if (error) {
+                console.warn('Could not load shortcuts:', error.message)
+                this.shortcuts = []
+            } else {
+                this.shortcuts = data || []
+            }
+        } catch (err) {
+            console.warn('Error loading shortcuts:', err)
+            this.shortcuts = []
+        }
+    }
+
+    setupEventListeners() {
         const links = this.container.querySelectorAll('a[href^="#"]')
+        const logoutBtn = this.container.querySelector('#logoutBtn')
+        const addShortcutBtn = this.container.querySelector('#addShortcutBtn')
+        const addFirstShortcutBtn = this.container.querySelector('#addFirstShortcutBtn')
+        const saveShortcutBtn = this.container.querySelector('#saveShortcutBtn')
+        const editButtons = this.container.querySelectorAll('.edit-shortcut-btn')
+        const deleteButtons = this.container.querySelectorAll('.delete-shortcut-btn')
+
+        // Navigation links
         links.forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault()
@@ -72,5 +203,187 @@ export class DashboardPage extends Page {
                 this.router.push(path)
             })
         })
+
+        // Logout
+        logoutBtn?.addEventListener('click', (e) => {
+            e.preventDefault()
+            this.handleLogout()
+        })
+
+        // Add shortcut buttons
+        addShortcutBtn?.addEventListener('click', () => this.openAddModal())
+        addFirstShortcutBtn?.addEventListener('click', () => this.openAddModal())
+
+        // Save shortcut
+        saveShortcutBtn?.addEventListener('click', () => this.saveShortcut())
+
+        // Edit buttons
+        editButtons.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault()
+                const id = btn.dataset.id
+                this.openEditModal(id)
+            })
+        })
+
+        // Delete buttons
+        deleteButtons.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault()
+                const id = btn.dataset.id
+                this.deleteShortcut(id)
+            })
+        })
+    }
+
+    openAddModal() {
+        const modal = new bootstrap.Modal(this.container.querySelector('#shortcutModal'))
+        this.container.querySelector('#modalTitle').textContent = 'Add Shortcut'
+        this.container.querySelector('#shortcutForm').reset()
+        this.container.querySelector('#shortcutForm').dataset.id = ''
+        modal.show()
+    }
+
+    openEditModal(id) {
+        const shortcut = this.shortcuts.find(s => s.id === id)
+        if (!shortcut) return
+
+        const modal = new bootstrap.Modal(this.container.querySelector('#shortcutModal'))
+        this.container.querySelector('#modalTitle').textContent = 'Edit Shortcut'
+        this.container.querySelector('#shortcutName').value = shortcut.name
+        this.container.querySelector('#shortcutUrl').value = shortcut.url
+        this.container.querySelector('#shortcutIcon').value = shortcut.icon || 'bi-link-45deg'
+        this.container.querySelector('#shortcutDescription').value = shortcut.description || ''
+        this.container.querySelector('#shortcutForm').dataset.id = id
+        modal.show()
+    }
+
+    async saveShortcut() {
+        const form = this.container.querySelector('#shortcutForm')
+        const id = form.dataset.id
+        const name = this.container.querySelector('#shortcutName').value.trim()
+        const url = this.container.querySelector('#shortcutUrl').value.trim()
+        const icon = this.container.querySelector('#shortcutIcon').value.trim() || 'bi-link-45deg'
+        const description = this.container.querySelector('#shortcutDescription').value.trim()
+
+        if (!name || !url) {
+            this.showError('Please fill in all required fields')
+            return
+        }
+
+        this.isLoading = true
+
+        try {
+            if (id) {
+                // Update existing
+                const { error } = await supabase
+                    .from('shortcuts')
+                    .update({ name, url, icon, description, updated_at: new Date() })
+                    .eq('id', id)
+                    .eq('user_id', this.user.id)
+
+                if (error) throw error
+                this.showSuccess('Shortcut updated successfully')
+            } else {
+                // Create new
+                const { error } = await supabase
+                    .from('shortcuts')
+                    .insert({
+                        user_id: this.user.id,
+                        name,
+                        url,
+                        icon,
+                        description
+                    })
+
+                if (error) throw error
+                this.showSuccess('Shortcut created successfully')
+            }
+
+            // Reload shortcuts
+            await this.loadShortcuts()
+            const shortcutsContainer = this.container.querySelector('#shortcutsContainer')
+            if (shortcutsContainer) {
+                shortcutsContainer.innerHTML = this.renderShortcuts()
+                this.setupEventListeners()
+            }
+
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(this.container.querySelector('#shortcutModal'))
+            modal?.hide()
+        } catch (err) {
+            this.showError('Error saving shortcut: ' + err.message)
+        } finally {
+            this.isLoading = false
+        }
+    }
+
+    async deleteShortcut(id) {
+        if (!confirm('Are you sure you want to delete this shortcut?')) {
+            return
+        }
+
+        this.isLoading = true
+
+        try {
+            const { error } = await supabase
+                .from('shortcuts')
+                .delete()
+                .eq('id', id)
+                .eq('user_id', this.user.id)
+
+            if (error) throw error
+
+            this.showSuccess('Shortcut deleted successfully')
+
+            // Reload shortcuts
+            await this.loadShortcuts()
+            const shortcutsContainer = this.container.querySelector('#shortcutsContainer')
+            if (shortcutsContainer) {
+                shortcutsContainer.innerHTML = this.renderShortcuts()
+                this.setupEventListeners()
+            }
+        } catch (err) {
+            this.showError('Error deleting shortcut: ' + err.message)
+        } finally {
+            this.isLoading = false
+        }
+    }
+
+    async handleLogout() {
+        const { error } = await auth.logout()
+        if (error) {
+            this.showError('Logout failed: ' + error.message)
+        } else {
+            this.showSuccess('Logged out successfully. Redirecting...')
+            setTimeout(() => {
+                this.router.push('/')
+            }, 1500)
+        }
+    }
+
+    showError(message) {
+        const errorAlert = this.container.querySelector('#errorAlert')
+        if (errorAlert) {
+            errorAlert.textContent = message
+            errorAlert.classList.remove('d-none')
+            this.container.querySelector('#successAlert')?.classList.add('d-none')
+        }
+    }
+
+    showSuccess(message) {
+        const successAlert = this.container.querySelector('#successAlert')
+        if (successAlert) {
+            successAlert.textContent = message
+            successAlert.classList.remove('d-none')
+            this.container.querySelector('#errorAlert')?.classList.add('d-none')
+        }
+    }
+
+    escapeHtml(text) {
+        const div = document.createElement('div')
+        div.textContent = text
+        return div.innerHTML
     }
 }
+

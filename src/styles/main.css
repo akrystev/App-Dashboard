@@ -77,6 +77,68 @@ h6 {
     color: #6c757d !important;
 }
 
+/* Dashboard Page Styles */
+.shortcut-card {
+    border: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.shortcut-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+.shortcut-card .card-body {
+    display: flex;
+    flex-direction: column;
+}
+
+.shortcut-card .btn-group {
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.shortcut-card:hover .btn-group {
+    opacity: 1;
+}
+
+.shortcut-card .btn-outline-secondary,
+.shortcut-card .btn-outline-danger {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+
+.dropdown-menu {
+    border: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.dropdown-item {
+    transition: background-color 0.2s;
+}
+
+.dropdown-item:hover {
+    background-color: #f0f0f0;
+}
+
+/* Modal Styles */
+.modal-content {
+    border: none;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+    border-bottom: 1px solid #e9ecef;
+    background-color: #f8f9fa;
+}
+
+.modal-body {
+    padding: 2rem;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .container {
