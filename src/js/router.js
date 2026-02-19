@@ -1,13 +1,15 @@
 // Simple client-side router
 import { IndexPage } from './pages/index-page.js'
 import { DashboardPage } from './pages/dashboard-page.js'
+import { LoginPage } from './pages/login-page.js'
 
 export class Router {
     constructor(appContainer) {
         this.appContainer = appContainer
         this.routes = {
             '/': IndexPage,
-            '/dashboard': DashboardPage
+            '/dashboard': DashboardPage,
+            '/login': LoginPage
         }
         this.currentPage = null
     }
