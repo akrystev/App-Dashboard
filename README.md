@@ -80,6 +80,15 @@ npm run dev
 
 The application will open at `http://localhost:5173`
 
+### Demo Account
+
+A demo account is available for testing:
+
+- **Email**: demo@demo.com
+- **Password**: demo123
+
+Use these credentials to login and test the dashboard functionality without creating a new account.
+
 ### Building for Production
 
 Build the application:
@@ -95,11 +104,11 @@ npm run preview
 ## Pages
 
 - `/` - Home page with welcome message and navigation
+- `/login` - User login
 - `/dashboard` - User dashboard for managing shortcuts
 
 ## Future Pages
 
-- `/login` - User login
 - `/register` - User registration
 - `/admin` - Admin panel for user management
 - `/settings` - User settings
