@@ -14,9 +14,6 @@ export class NavBar {
           </button>
           <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
-              <li class="nav-item">
-                <a class="nav-link ${activePage === 'dashboard' ? 'active' : ''}" href="#/dashboard">Dashboard</a>
-              </li>
             </ul>
             
             <!-- User Panel -->
