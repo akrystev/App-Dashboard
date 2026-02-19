@@ -1,6 +1,7 @@
 // Settings Page
 import { Page } from './page.js'
 import { auth } from '../services/supabase.js'
+import { NavBar } from '../components/navbar.js'
 
 export class SettingsPage extends Page {
     constructor(container, router) {
@@ -18,37 +19,7 @@ export class SettingsPage extends Page {
             return
         }
 
-        this.container.innerHTML = `
-      <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container-fluid">
-          <a class="navbar-brand" href="#/">
-            <i class="bi bi-speedometer2"></i> App Dashboard
-          </a>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-          </button>
-          <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto">
-              <li class="nav-item">
-                <a class="nav-link" href="#/dashboard">Dashboard</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#/">Home</a>
-              </li>
-              <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                  <i class="bi bi-person-circle"></i> ${this.user.email}
-                </a>
-                <ul class="dropdown-menu dropdown-menu-end">
-                  <li><a class="dropdown-item" href="#/settings">Settings</a></li>
-                  <li><hr class="dropdown-divider"></li>
-                  <li><button class="dropdown-item" id="logoutBtn" style="border: none; background: none; cursor: pointer; text-align: left; width: 100%; padding: 0.5rem 1rem;">Logout</button></li>
-                </ul>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </nav>
+        this.container.innerHTML = NavBar.createHTML(this.user, 'settings') + `
 
       <div class="container mt-5 mb-5">
         <!-- Header Section -->
@@ -145,8 +116,14 @@ export class SettingsPage extends Page {
 
     setupEventListeners() {
         const links = this.container.querySelectorAll('a[href^="#"]:not(.dropdown-toggle)')
-        const logoutBtn = this.container.querySelector('#logoutBtn')
         const passwordForm = this.container.querySelector('#passwordForm')
+
+        // Setup navbar event listeners
+        NavBar.setupListeners(
+            this.container,
+            () => this.router.push('/settings'),
+            () => this.handleLogout()
+        )
 
         // Navigation links
         links.forEach(link => {
@@ -158,11 +135,6 @@ export class SettingsPage extends Page {
         })
 
         // Logout
-        logoutBtn?.addEventListener('click', (e) => {
-            e.preventDefault()
-            this.handleLogout()
-        })
-
         // Password form submission
         passwordForm.addEventListener('submit', (e) => this.handlePasswordChange(e))
     }

@@ -1,6 +1,7 @@
 // Dashboard Page
 import { Page } from './page.js'
 import { auth, supabase } from '../services/supabase.js'
+import { NavBar } from '../components/navbar.js'
 
 export class DashboardPage extends Page {
     constructor(container, router) {
@@ -22,37 +23,7 @@ export class DashboardPage extends Page {
         // Load shortcuts
         await this.loadShortcuts()
 
-        this.container.innerHTML = `
-      <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container-fluid">
-          <a class="navbar-brand" href="#/">
-            <i class="bi bi-speedometer2"></i> App Dashboard
-          </a>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-          </button>
-          <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto">
-              <li class="nav-item">
-                <a class="nav-link active" href="#/dashboard">Dashboard</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#/">Home</a>
-              </li>
-              <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                  <i class="bi bi-person-circle"></i> ${this.user.email}
-                </a>
-                <ul class="dropdown-menu dropdown-menu-end">
-                  <li><a class="dropdown-item nav-settings-link" href="#/settings">Settings</a></li>
-                  <li><hr class="dropdown-divider"></li>
-                  <li><button class="dropdown-item" id="logoutBtn" style="border: none; background: none; cursor: pointer; text-align: left; width: 100%; padding: 0.5rem 1rem;">Logout</button></li>
-                </ul>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </nav>
+        this.container.innerHTML = NavBar.createHTML(this.user, 'dashboard') + `
 
       <div class="container mt-5 mb-5">
         <!-- Header Section -->
@@ -184,12 +155,18 @@ export class DashboardPage extends Page {
     setupEventListeners() {
         // Get all navigation links (exclude dropdown toggles)
         const navigationLinks = this.container.querySelectorAll('a[href^="#"]:not(.dropdown-toggle)')
-        const logoutBtn = this.container.querySelector('#logoutBtn')
         const addShortcutBtn = this.container.querySelector('#addShortcutBtn')
         const addFirstShortcutBtn = this.container.querySelector('#addFirstShortcutBtn')
         const saveShortcutBtn = this.container.querySelector('#saveShortcutBtn')
         const editButtons = this.container.querySelectorAll('.edit-shortcut-btn')
         const deleteButtons = this.container.querySelectorAll('.delete-shortcut-btn')
+
+        // Setup navbar event listeners
+        NavBar.setupListeners(
+            this.container,
+            () => this.router.push('/settings'),
+            () => this.handleLogout()
+        )
 
         // Navigation links
         navigationLinks.forEach(link => {
@@ -198,12 +175,6 @@ export class DashboardPage extends Page {
                 const path = link.getAttribute('href').substring(1) || '/'
                 this.router.push(path)
             })
-        })
-
-        // Logout button
-        logoutBtn?.addEventListener('click', (e) => {
-            e.preventDefault()
-            this.handleLogout()
         })
 
         // Add shortcut buttons
