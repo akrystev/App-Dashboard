@@ -54,3 +54,23 @@ export const auth = {
         return supabase.auth.onAuthStateChange(callback)
     }
 }
+
+export async function ensureUserRecord(user) {
+    if (!user?.id || !user?.email) return
+
+    const now = new Date().toISOString()
+    const { error } = await supabase
+        .from('users')
+        .upsert(
+            {
+                id: user.id,
+                email: user.email,
+                updated_at: now
+            },
+            { onConflict: 'id' }
+        )
+
+    if (error) {
+        console.warn('Failed to ensure users record:', error.message)
+    }
+}

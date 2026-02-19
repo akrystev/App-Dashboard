@@ -1,6 +1,6 @@
 // Dashboard Page
 import { Page } from './page.js'
-import { auth, supabase } from '../services/supabase.js'
+import { auth, supabase, ensureUserRecord } from '../services/supabase.js'
 import { NavBar } from '../components/navbar.js'
 
 export class DashboardPage extends Page {
@@ -19,6 +19,8 @@ export class DashboardPage extends Page {
             this.router.push('/login')
             return
         }
+
+        await ensureUserRecord(this.user)
 
         // Load shortcuts
         await this.loadShortcuts()
