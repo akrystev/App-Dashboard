@@ -10,10 +10,13 @@ The administrator should be able to manage all users and their shortcuts, e.g. d
 ## Architecture
     • Use Node.js, npm and Vite to structure your app.
     • Use multi-page navigation (instead of single page with popups) and keep each page in separate file.
-    • Use modular design: split your app into self-contained components (e.g. UI pages, services, utils) to improve project maintenance. When reasonable, use separate files for the UI, business logic, styles, and other app assets. Avoid big and complex monolith code.
+    • Each page should have its own JavaScript file with the page logic and its own CSS file with the page styles. Use modular design to keep the code organized and maintainable.
+    • Use modular design: split the app into self-contained components (e.g. UI pages, services, utils) to improve project maintenance. When reasonable, use separate files for the UI, business logic, styles, and other app assets. Avoid big and complex monolith code.
 ## User Interface (UI)
     • Implement minimum 5 app screens (pages / popups / others).
     • Example: register, login, main page, view / add / edit / delete entity and admin panel.
+    • Admin panel should be only for admin users and should allow to manage all users and their shortcuts.
+    • Main page should be the dashboard with shortcuts to local network or public URLs.
     • Keep different app screens in separate files (for higher maintenance).
     • Use Bootstrap components and utilities to create a clean, responsive and user-friendly UI.
     • Implement  modern, responsive UI design with semantic HTML.
