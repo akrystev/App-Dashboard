@@ -2,6 +2,7 @@
 import { IndexPage } from './pages/index-page.js'
 import { DashboardPage } from './pages/dashboard-page.js'
 import { LoginPage } from './pages/login-page.js'
+import { RegisterPage } from './pages/register-page.js'
 import { SettingsPage } from './pages/settings-page.js'
 
 export class Router {
@@ -11,6 +12,7 @@ export class Router {
             '/': IndexPage,
             '/dashboard': DashboardPage,
             '/login': LoginPage,
+            '/register': RegisterPage,
             '/settings': SettingsPage
         }
         this.currentPage = null
