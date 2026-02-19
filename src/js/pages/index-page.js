@@ -47,25 +47,28 @@ export class IndexPage extends Page {
         </div>
       </nav>
 
-      <div class="container text-center mt-5">
-        <h1>Welcome to Application Dashboard</h1>
-        <p class="lead">Your central hub for app shortcuts and management</p>
-        <div class="mt-4">
-          <a href="#/login" class="btn btn-primary btn-lg">Login</a>
+      <section class="home-hero">
+        <div class="container text-center">
+          <div class="home-hero-badge">Demo Mode</div>
+          <h1 class="home-hero-title">Welcome to Application Dashboard</h1>
+          <p class="home-hero-subtitle">Preview the experience, then unlock your personal workspace.</p>
+          <div class="mt-4">
+            <a href="#/login" class="btn btn-primary btn-lg">Login</a>
+          </div>
         </div>
-      </div>
+      </section>
 
-      <div class="container mt-5 mb-5">
+      <section class="container mt-4 mb-5">
         <div class="row mb-3">
           <div class="col text-center">
             <h4 class="mb-1">Demo Dashboard</h4>
-            <p class="text-muted mb-0">Preview how your shortcuts will look after login</p>
+            <p class="text-muted mb-0">These cards are read-only until you sign in</p>
           </div>
         </div>
         <div class="row" id="demoShortcuts">
           ${this.renderDemoShortcuts()}
         </div>
-      </div>
+      </section>
     `
 
         // Add event listeners for navigation
@@ -89,7 +92,7 @@ export class IndexPage extends Page {
             .map(
                 shortcut => `
         <div class="col-md-4 mb-4">
-          <div class="card shortcut-card h-100">
+          <div class="card demo-card h-100">
             <div class="card-body">
               <div class="d-flex justify-content-between align-items-start mb-3">
                 <i class="bi ${shortcut.icon} display-6 text-primary"></i>
