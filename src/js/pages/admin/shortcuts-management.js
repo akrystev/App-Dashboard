@@ -2,22 +2,52 @@
 import { supabase } from '../../services/supabase.js'
 
 export class ShortcutsManagement {
-    constructor(container, adminPage) {
-        this.container = container
-        this.adminPage = adminPage
-    }
+  constructor(container, adminPage) {
+    this.container = container
+    this.adminPage = adminPage
+    this.selectedShortcutForAccess = null
+    this.availableUsers = []
+    this.shortcutVisibility = new Map()
+  }
 
-    renderShortcutsTable() {
-        if (this.adminPage.shortcuts.length === 0) {
-            return `
-        <div class="alert alert-info text-center">
+  async loadShortcutVisibility() {
+    try {
+      const { data, error } = await supabase
+        .from('shortcut_visibility')
+        .select('*')
+
+      if (error) throw error
+
+      this.shortcutVisibility.clear()
+      if (data) {
+        data.forEach(entry => {
+          if (!this.shortcutVisibility.has(entry.shortcut_id)) {
+            this.shortcutVisibility.set(entry.shortcut_id, [])
+          }
+          this.shortcutVisibility.get(entry.shortcut_id).push(entry.user_id)
+        })
+      }
+    } catch (err) {
+      console.error('Error loading shortcut visibility:', err)
+    }
+  }
+
+  renderShortcutsTable() {
+    if (this.adminPage.shortcuts.length === 0) {
+      return `
+        <div class="alert alert-info text-center mb-4">
           <i class="bi bi-inbox display-4"></i>
           <p class="mt-3">No shortcuts found</p>
         </div>
       `
-        }
+    }
 
-        return `
+    return `
+      <div class="mb-3">
+        <button class="btn btn-success" id="createShortcutBtn">
+          <i class="bi bi-plus-circle"></i> Create Shortcut
+        </button>
+      </div>
       <div class="table-responsive">
         <table class="table table-hover">
           <thead>
@@ -26,14 +56,17 @@ export class ShortcutsManagement {
               <th>Name</th>
               <th>URL</th>
               <th>Owner</th>
+              <th>Users Can See</th>
               <th>Created</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
             ${this.adminPage.shortcuts
-                .map(
-                    shortcut => `
+        .map(
+          shortcut => {
+            const visibleUsers = this.shortcutVisibility.get(shortcut.id) || []
+            return `
               <tr>
                 <td><i class="bi ${shortcut.icon || 'bi-link-45deg'} text-primary fs-4"></i></td>
                 <td>${this.escapeHtml(shortcut.name)}</td>
@@ -43,76 +76,288 @@ export class ShortcutsManagement {
                   </a>
                 </td>
                 <td>${this.escapeHtml(shortcut.user_email || 'Unknown')}</td>
+                <td>
+                  <span class="badge bg-info">${visibleUsers.length} user${visibleUsers.length !== 1 ? 's' : ''}</span>
+                </td>
                 <td>${this.formatDate(shortcut.created_at)}</td>
                 <td>
-                  <button class="btn btn-outline-danger btn-sm delete-shortcut-btn" data-id="${shortcut.id}">
-                    <i class="bi bi-trash"></i> Delete
-                  </button>
+                  <div class="btn-group btn-group-sm" role="group">
+                    <button class="btn btn-outline-primary manage-access-btn" data-id="${shortcut.id}" title="Manage Access">
+                      <i class="bi bi-people"></i>
+                    </button>
+                    <button class="btn btn-outline-danger delete-shortcut-btn" data-id="${shortcut.id}">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </div>
                 </td>
               </tr>
             `
-                )
-                .join('')}
+          }
+        )
+        .join('')}
           </tbody>
         </table>
       </div>
     `
-    }
+  }
 
-    setupEventListeners(container) {
-        const deleteButtons = container.querySelectorAll('.delete-shortcut-btn')
+  setupEventListeners(container) {
+    const deleteButtons = container.querySelectorAll('.delete-shortcut-btn')
+    const createShortcutBtn = container.querySelector('#createShortcutBtn')
+    const manageAccessButtons = container.querySelectorAll('.manage-access-btn')
 
-        deleteButtons.forEach(btn => {
-            btn.addEventListener('click', () => {
-                const shortcutId = btn.dataset.id
-                this.deleteShortcut(shortcutId)
-            })
+    createShortcutBtn?.addEventListener('click', () => this.openCreateShortcutModal())
+
+    deleteButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const shortcutId = btn.dataset.id
+        this.deleteShortcut(shortcutId)
+      })
+    })
+
+    manageAccessButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const shortcutId = btn.dataset.id
+        this.openManageAccessModal(shortcutId)
+      })
+    })
+  }
+
+  openCreateShortcutModal() {
+    const modal = new (window.bootstrap || {}).Modal(
+      document.getElementById('createShortcutModal'),
+      { backdrop: 'static', keyboard: false }
+    )
+
+    // Reset form
+    const form = document.getElementById('createShortcutForm')
+    if (form) form.reset()
+
+    modal.show()
+  }
+
+  async openManageAccessModal(shortcutId) {
+    this.selectedShortcutForAccess = shortcutId
+    const shortcut = this.adminPage.shortcuts.find(s => s.id === shortcutId)
+    if (!shortcut) return
+
+    try {
+      // Load all users
+      const { data: usersData, error: usersError } = await supabase
+        .from('users')
+        .select('id, email')
+        .order('email', { ascending: true })
+
+      if (usersError) throw usersError
+      this.availableUsers = usersData || []
+
+      // Get current visibility
+      const { data: visibilityData, error: visibilityError } = await supabase
+        .from('shortcut_visibility')
+        .select('user_id')
+        .eq('shortcut_id', shortcutId)
+
+      if (visibilityError) throw visibilityError
+      const visibleUserIds = new Set((visibilityData || []).map(v => v.user_id))
+
+      // Build modal content
+      const userListHtml = this.availableUsers
+        .map(user => {
+          const isChecked = visibleUserIds.has(user.id)
+          return `
+                        <div class="form-check">
+                            <input class="form-check-input user-access-check" type="checkbox" value="${user.id}" ${isChecked ? 'checked' : ''} id="user_${user.id}">
+                            <label class="form-check-label" for="user_${user.id}">
+                                ${this.escapeHtml(user.email)}
+                            </label>
+                        </div>
+                    `
         })
+        .join('')
+
+      const modalContent = document.createElement('div')
+      modalContent.className = 'modal fade'
+      modalContent.id = 'manageAccessModal'
+      modalContent.tabIndex = '-1'
+      modalContent.innerHTML = `
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Manage Access for "${this.escapeHtml(shortcut.name)}"</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body" style="max-height: 400px; overflow-y: auto;">
+                            <p class="text-muted small mb-3">Select which users can see this shortcut:</p>
+                            ${userListHtml}
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="button" class="btn btn-primary" id="saveAccessBtn">Save Changes</button>
+                        </div>
+                    </div>
+                </div>
+            `
+
+      // Remove old modal if exists
+      const oldModal = document.getElementById('manageAccessModal')
+      if (oldModal) oldModal.remove()
+
+      document.body.appendChild(modalContent)
+
+      // Setup save button
+      const saveBtn = modalContent.querySelector('#saveAccessBtn')
+      saveBtn.addEventListener('click', () => this.saveShortcutAccess(modalContent))
+
+      // Show modal
+      const modal = new (window.bootstrap || {}).Modal(modalContent)
+      modal.show()
+    } catch (err) {
+      this.adminPage.showError('Error loading access settings: ' + err.message)
+    }
+  }
+
+  async saveShortcutAccess(modalElement) {
+    const checkboxes = modalElement.querySelectorAll('.user-access-check')
+    const selectedUserIds = Array.from(checkboxes)
+      .filter(cb => cb.checked)
+      .map(cb => cb.value)
+
+    try {
+      // Delete all current visibility entries for this shortcut
+      const { error: deleteError } = await supabase
+        .from('shortcut_visibility')
+        .delete()
+        .eq('shortcut_id', this.selectedShortcutForAccess)
+
+      if (deleteError) throw deleteError
+
+      // Insert new visibility entries
+      if (selectedUserIds.length > 0) {
+        const visibilityEntries = selectedUserIds.map(userId => ({
+          shortcut_id: this.selectedShortcutForAccess,
+          user_id: userId,
+          granted_by: this.adminPage.user?.id
+        }))
+
+        const { error: insertError } = await supabase
+          .from('shortcut_visibility')
+          .insert(visibilityEntries)
+
+        if (insertError) throw insertError
+      }
+
+      this.adminPage.showSuccess('Access updated successfully')
+
+      // Close modal
+      const modal = (window.bootstrap || {}).Modal.getInstance(modalElement)
+      modal?.hide()
+
+      // Reload and update display
+      await this.loadShortcutVisibility()
+      const shortcutsTab = this.container.querySelector('#shortcuts')
+      if (shortcutsTab) {
+        shortcutsTab.innerHTML = this.renderShortcutsTable()
+        this.setupEventListeners(this.container)
+      }
+    } catch (err) {
+      this.adminPage.showError('Error saving access: ' + err.message)
+    }
+  }
+
+  async createShortcut() {
+    const form = document.getElementById('createShortcutForm')
+    if (!form) return
+
+    const name = form.querySelector('#shortcutName')?.value?.trim()
+    const url = form.querySelector('#shortcutUrl')?.value?.trim()
+    const icon = form.querySelector('#shortcutIcon')?.value?.trim()
+    const description = form.querySelector('#shortcutDescription')?.value?.trim()
+
+    if (!name || !url) {
+      this.adminPage.showError('Name and URL are required')
+      return
     }
 
-    async deleteShortcut(shortcutId) {
-        const shortcut = this.adminPage.shortcuts.find(s => s.id === shortcutId)
-        if (!shortcut) return
+    try {
+      // Create shortcut
+      const { data: shortcut, error: createError } = await supabase
+        .from('shortcuts')
+        .insert([
+          {
+            name,
+            url,
+            icon: icon || 'bi-link-45deg',
+            description,
+            user_id: this.adminPage.user.id
+          }
+        ])
+        .select()
 
-        if (!confirm(`Are you sure you want to delete shortcut "${shortcut.name}"?`)) {
-            return
-        }
+      if (createError) throw createError
 
-        try {
-            const { error } = await supabase
-                .from('shortcuts')
-                .delete()
-                .eq('id', shortcutId)
+      this.adminPage.showSuccess('Shortcut created successfully')
 
-            if (error) throw error
+      // Close modal
+      const modal = window.bootstrap?.Modal.getInstance(document.getElementById('createShortcutModal'))
+      modal?.hide()
 
-            this.adminPage.showSuccess('Shortcut deleted successfully')
+      // Reload shortcuts
+      await this.adminPage.loadAllShortcuts()
+      await this.loadShortcutVisibility()
 
-            await this.adminPage.loadAllShortcuts()
-            const shortcutsTab = this.container.querySelector('#shortcuts')
-            if (shortcutsTab) {
-                shortcutsTab.innerHTML = this.renderShortcutsTable()
-                this.setupEventListeners(this.container)
-            }
-        } catch (err) {
-            this.adminPage.showError('Error deleting shortcut: ' + err.message)
-        }
+      const shortcutsTab = this.container.querySelector('#shortcuts')
+      if (shortcutsTab) {
+        shortcutsTab.innerHTML = this.renderShortcutsTable()
+        this.setupEventListeners(this.container)
+      }
+    } catch (err) {
+      this.adminPage.showError('Error creating shortcut: ' + err.message)
+    }
+  }
+
+  async deleteShortcut(shortcutId) {
+    const shortcut = this.adminPage.shortcuts.find(s => s.id === shortcutId)
+    if (!shortcut) return
+
+    if (!confirm(`Are you sure you want to delete shortcut "${shortcut.name}"?`)) {
+      return
     }
 
-    formatDate(dateString) {
-        if (!dateString) return 'N/A'
-        const date = new Date(dateString)
-        return date.toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric'
-        })
-    }
+    try {
+      const { error } = await supabase
+        .from('shortcuts')
+        .delete()
+        .eq('id', shortcutId)
 
-    escapeHtml(text) {
-        if (!text) return ''
-        const div = document.createElement('div')
-        div.textContent = text
-        return div.innerHTML
+      if (error) throw error
+
+      this.adminPage.showSuccess('Shortcut deleted successfully')
+
+      await this.adminPage.loadAllShortcuts()
+      const shortcutsTab = this.container.querySelector('#shortcuts')
+      if (shortcutsTab) {
+        shortcutsTab.innerHTML = this.renderShortcutsTable()
+        this.setupEventListeners(this.container)
+      }
+    } catch (err) {
+      this.adminPage.showError('Error deleting shortcut: ' + err.message)
     }
+  }
+
+  formatDate(dateString) {
+    if (!dateString) return 'N/A'
+    const date = new Date(dateString)
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    })
+  }
+
+  escapeHtml(text) {
+    if (!text) return ''
+    const div = document.createElement('div')
+    div.textContent = text
+    return div.innerHTML
+  }
 }

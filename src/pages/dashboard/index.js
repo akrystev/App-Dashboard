@@ -98,18 +98,45 @@ export class DashboardPage extends Page {
 
     async loadShortcuts() {
         try {
-            const { data, error } = await supabase
+            // Load the user's own shortcuts
+            const { data: ownShortcuts, error: ownError } = await supabase
                 .from('shortcuts')
                 .select('*')
                 .eq('user_id', this.user.id)
                 .order('created_at', { ascending: false })
 
-            if (error) {
-                console.warn('Could not load shortcuts:', error.message)
-                this.shortcuts = []
-            } else {
-                this.shortcuts = data || []
+            if (ownError) throw ownError
+
+            // Load shortcuts shared with the user via visibility
+            const { data: sharedShortcuts, error: sharedError } = await supabase
+                .from('shortcut_visibility')
+                .select(`
+                    shortcut_id,
+                    shortcuts!shortcut_id(*)
+                `)
+                .eq('user_id', this.user.id)
+
+            if (sharedError) throw sharedError
+
+            // Combine shortcuts, removing duplicates
+            const shortcutMap = new Map()
+
+            // Add own shortcuts
+            if (ownShortcuts) {
+                ownShortcuts.forEach(s => shortcutMap.set(s.id, s))
             }
+
+            // Add shared shortcuts
+            if (sharedShortcuts) {
+                sharedShortcuts.forEach(entry => {
+                    if (entry.shortcuts) {
+                        shortcutMap.set(entry.shortcuts.id, entry.shortcuts)
+                    }
+                })
+            }
+
+            this.shortcuts = Array.from(shortcutMap.values())
+                .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
         } catch (err) {
             console.warn('Error loading shortcuts:', err)
             this.shortcuts = []
