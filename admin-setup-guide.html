@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Quick Admin Setup - App Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        .step {
+            background: #f5f5f5;
+            padding: 15px;
+            margin: 15px 0;
+            border-left: 4px solid #0d6efd;
+        }
+
+        .step h3 {
+            margin-top: 0;
+            color: #0d6efd;
+        }
+
+        code {
+            background: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+
+        .sql-box {
+            background: #282c34;
+            color: #abb2bf;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+
+        .important {
+            background: #fff3cd;
+            border-left-color: #ffc107;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🔧 Quick Admin User Setup</h1>
+
+    <div class="step important">
+        <h3>⚠️ Important: The admin user doesn't exist yet</h3>
+        <p>Follow these steps IN ORDER to create and login as admin.</p>
+    </div>
+
+    <div class="step">
+        <h3>Step 1: Register Admin User Through the App</h3>
+        <ol>
+            <li>Open your app at: <a href="http://localhost:5175/#/register"
+                    target="_blank">http://localhost:5175/#/register</a></li>
+            <li>Fill in the registration form:
+                <ul>
+                    <li>Email: <code>admin@demo.com</code></li>
+                    <li>Password: <code>admin123</code></li>
+                </ul>
+            </li>
+            <li>Click <strong>Register</strong></li>
+            <li>You should see a success message</li>
+        </ol>
+    </div>
+
+    <div class="step">
+        <h3>Step 2: Promote to Admin in Supabase</h3>
+        <ol>
+            <li>Open Supabase Dashboard: <a href="https://supabase.com/dashboard/project/YOUR_PROJECT_ID_REMOVED"
+                    target="_blank">Your Project</a></li>
+            <li>Click <strong>SQL Editor</strong> in the left sidebar</li>
+            <li>Click <strong>New query</strong></li>
+            <li>Copy and paste this SQL:</li>
+        </ol>
+
+        <div class="sql-box">
+            <pre>-- Promote admin@demo.com to admin role
+UPDATE users 
+SET role = 'admin', 
+    status = 'active',
+    updated_at = NOW()
+WHERE email = 'admin@demo.com';
+
+-- Add to user_roles table
+INSERT INTO user_roles (user_id, role, assigned_at)
+SELECT id, 'admin', NOW()
+FROM users
+WHERE email = 'admin@demo.com'
+ON CONFLICT (user_id, role) 
+DO UPDATE SET assigned_at = NOW();
+
+-- Verify (should return 1 row with admin role)
+SELECT 
+    u.email, 
+    u.role as users_role,
+    ur.role as user_roles_role,
+    u.status
+FROM users u
+LEFT JOIN user_roles ur ON ur.user_id = u.id
+WHERE u.email = 'admin@demo.com';</pre>
+        </div>
+        <ol start="5">
+            <li>Click <strong>Run</strong> (or press F5)</li>
+            <li>You should see a result showing the admin user with role='admin'</li>
+        </ol>
+    </div>
+
+    <div class="step">
+        <h3>Step 3: Login as Admin</h3>
+        <ol>
+            <li>Go back to your app: <a href="http://localhost:5175/#/login"
+                    target="_blank">http://localhost:5175/#/login</a></li>
+            <li>Login with:
+                <ul>
+                    <li>Email: <code>admin@demo.com</code></li>
+                    <li>Password: <code>admin123</code></li>
+                </ul>
+            </li>
+            <li>You should now see:
+                <ul>
+                    <li>✅ "Admin" badge in the navbar</li>
+                    <li>✅ "Admin Panel" link in the navigation</li>
+                </ul>
+            </li>
+            <li>Click "Admin Panel" to access the admin dashboard!</li>
+        </ol>
+    </div>
+
+    <div class="step">
+        <h3>✅ Success Checklist</h3>
+        <ul>
+            <li>☐ Registered admin@demo.com through the app</li>
+            <li>☐ Ran the SQL script in Supabase</li>
+            <li>☐ SQL returned 1 row with admin role</li>
+            <li>☐ Logged in successfully</li>
+            <li>☐ Can see "Admin Panel" link</li>
+            <li>☐ Can access /admin page</li>
+        </ul>
+    </div>
+
+    <div class="step important">
+        <h3>🐛 Troubleshooting</h3>
+        <p><strong>"Invalid login credentials"</strong> - Make sure you registered first through the app</p>
+        <p><strong>"No Admin Panel link"</strong> - Run the SQL script again, then logout and login</p>
+        <p><strong>"Access denied to /admin"</strong> - Check that the SQL script ran successfully</p>
+    </div>
+</body>
+
+</html>

@@ -31,11 +31,20 @@ The administrator should be able to manage all users and their shortcuts, e.g. d
     • Implement users (register, login, logout) and roles (normal and admin users).
     • Implement admin panel (or similar concept for special users, different from regular).
 ## Database
-    • The database should hold minimum 4 DB tables (with relationships when needed).
-    • Example (blog): users, profiles, articles, photos. Example (social network): users, posts, photos, comments.
-    • Keep the database schema as DB migrations scripts in a local folder.
+    • The database should hold minimum 4 DB tables (with relationships between them).
+    • Example: users, user roles, user profiles, shortcuts, pictures, comments.
     • The Supabase will be connected via MCP
     • When changing the database schema, always use Supabase Migrations to keep track and changes.
+    Implement user roles in Supabase:
+    • Enum: app_role (user | admin)
+    • Table: user_roles (user_id, user_role)
+    Define RLS policies:
+    • Everyone can read user_roles
+    • Database function is_admin()
+    • Only admins can write user_roles
+    • Everyone can read public app data
+    • Only owners and admins can edit app data
+
     • After applying the migrations in Supabase, keep a copy of the migration SQL files in the code.
 ## Storage
     • The app should store user files (like photos and documents) in Supabase Storage.

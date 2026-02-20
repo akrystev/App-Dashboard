@@ -7,8 +7,9 @@ A web application that serves as a central hub for app shortcuts and dashboard m
 - User registration and authentication via Supabase Auth
 - Multi-page application with clean routing
 - Bootstrap-based responsive UI
-- Admin panel for user management (planned)
-- Shortcut management system (planned)
+- **Admin panel for user management** ✅
+- **Shortcut management system** ✅
+- **User roles (admin/user)** ✅
 - Supabase integration for database, auth, and storage
 
 ## Tech Stack
@@ -80,14 +81,19 @@ npm run dev
 
 The application will open at `http://localhost:5173`
 
-### Demo Account
+### Demo Accounts
 
-A demo account is available for testing:
+Demo accounts are available for testing:
 
+**Regular User:**
 - **Email**: demo@demo.com
 - **Password**: demo123
 
-Use these credentials to login and test the dashboard functionality without creating a new account.
+**Admin User:**
+- **Email**: admin@demo.com
+- **Password**: admin123
+
+Use these credentials to login and test the dashboard functionality without creating a new account. The admin account has access to the Admin Panel for managing all users and shortcuts.
 
 ### Building for Production
 
@@ -100,11 +106,39 @@ Preview the production build:
 ```bash
 npm run preview
 ```
+register` - User registration
+- `/dashboard` - User dashboard for managing shortcuts
+- `/settings` - User settings and profile management
+- `/admin` - Admin panel for user and shortcut management (admin only)
 
-## Pages
+## Admin Panel
 
-- `/` - Home page with welcome message and navigation
-- `/login` - User login
+The admin panel is accessible only to users with the `admin` role. Features include:
+
+- **User Management**: View all users, edit user status (active/blocked/suspended), assign roles
+- **Shortcut Management**: View and delete shortcuts from all users
+- **Statistics**: Overview of users and shortcuts
+
+### Making a User Admin
+
+To promote a user to admin, run the SQL script in `supabase/scripts/make_user_admin.sql`:
+
+```sql
+-- Replace YOUR_USER_EMAIL with the actual email
+UPDATE users 
+SET role = 'admin', updated_at = timezone('UTC'::text, now())
+WHERE email = 'YOUR_USER_EMAIL';
+
+INSERT INTO user_roles (user_id, role, assigned_at)
+SELECT id, 'admin', timezone('UTC'::text, now())
+FROM users
+WHERE email = 'YOUR_USER_EMAIL'
+ON CONFLICT (user_id, role) 
+DO UPDATE SET assigned_at = timezone('UTC'::text, now());
+```
+
+## Future Pages
+
 - `/dashboard` - User dashboard for managing shortcuts
 
 ## Future Pages

@@ -74,3 +74,70 @@ export async function ensureUserRecord(user) {
         console.warn('Failed to ensure users record:', error.message)
     }
 }
+
+// Check if a user is an admin
+export async function isAdmin(userId) {
+    try {
+        // Check user_roles table
+        const { data: roleData, error: roleError } = await supabase
+            .from('user_roles')
+            .select('role')
+            .eq('user_id', userId)
+            .eq('role', 'admin')
+            .single()
+
+        if (!roleError && roleData) {
+            return true
+        }
+
+        // Fallback to users table
+        const { data: userData, error: userError } = await supabase
+            .from('users')
+            .select('role')
+            .eq('id', userId)
+            .single()
+
+        if (!userError && userData?.role === 'admin') {
+            return true
+        }
+
+        return false
+    } catch (err) {
+        console.warn('Error checking admin status:', err)
+        return false
+    }
+}
+
+// Get user role
+export async function getUserRole(userId) {
+    try {
+        // Check user_roles table first
+        const { data: roleData, error: roleError } = await supabase
+            .from('user_roles')
+            .select('role')
+            .eq('user_id', userId)
+            .order('assigned_at', { ascending: false })
+            .limit(1)
+            .single()
+
+        if (!roleError && roleData) {
+            return roleData.role
+        }
+
+        // Fallback to users table
+        const { data: userData, error: userError } = await supabase
+            .from('users')
+            .select('role')
+            .eq('id', userId)
+            .single()
+
+        if (!userError && userData?.role) {
+            return userData.role
+        }
+
+        return 'user'
+    } catch (err) {
+        console.warn('Error getting user role:', err)
+        return 'user'
+    }
+}

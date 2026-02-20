@@ -1,6 +1,6 @@
 // Dashboard Page
 import { Page } from './page.js'
-import { auth, supabase, ensureUserRecord } from '../services/supabase.js'
+import { auth, supabase, ensureUserRecord, getUserRole } from '../services/supabase.js'
 import { NavBar } from '../components/navbar.js'
 
 export class DashboardPage extends Page {
@@ -10,6 +10,7 @@ export class DashboardPage extends Page {
         this.user = null
         this.shortcuts = []
         this.isLoading = false
+        this.userRole = 'user'
     }
 
     async render() {
@@ -22,10 +23,13 @@ export class DashboardPage extends Page {
 
         await ensureUserRecord(this.user)
 
+        // Get user role
+        this.userRole = await getUserRole(this.user.id)
+
         // Load shortcuts
         await this.loadShortcuts()
 
-        this.container.innerHTML = NavBar.createHTML(this.user, 'dashboard') + `
+        this.container.innerHTML = NavBar.createHTML(this.user, 'dashboard', this.userRole) + `
 
       <div class="container mt-5 mb-5">
         <!-- Header Section -->
