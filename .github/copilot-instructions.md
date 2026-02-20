@@ -35,6 +35,7 @@ The administrator should be able to manage all users and their shortcuts, e.g. d
     • Example: users, user roles, user profiles, shortcuts, pictures, comments.
     • The Supabase will be connected via MCP
     • When changing the database schema, always use Supabase Migrations to keep track and changes.
+    • Never change the database schema directly in the Supabase UI without using Migrations, because it will cause problems with the project maintenance and deployment.
     Implement user roles in Supabase:
     • Enum: app_role (user | admin)
     • Table: user_roles (user_id, user_role)
@@ -44,8 +45,6 @@ The administrator should be able to manage all users and their shortcuts, e.g. d
     • Only admins can write user_roles
     • Everyone can read public app data
     • Only owners and admins can edit app data
-
-    • After applying the migrations in Supabase, keep a copy of the migration SQL files in the code.
 ## Storage
     • The app should store user files (like photos and documents) in Supabase Storage.
     • The project should use file upload and download somewhere, e.g. profile pictures or product photos.
@@ -58,4 +57,4 @@ The administrator should be able to manage all users and their shortcuts, e.g. d
 ## Authentication and Authorization
     • Use Supabase Auth for user authentication and authorization.
     • Implement RLS policies to restrict access to data based on user roles and permissions.
-    • Implement user roles with separate DB table `user_roles`  + enum `roles` (e.g. admin, user, etc.).
+    • Implement user roles with separate DB table `user_roles`  + enum `roles` (e.g. admin, user, etc.)
