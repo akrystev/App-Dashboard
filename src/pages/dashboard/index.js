@@ -1,7 +1,9 @@
 // Dashboard Page
-import { Page } from './page.js'
-import { auth, supabase, ensureUserRecord, getUserRole } from '../services/supabase.js'
-import { NavBar } from '../components/navbar.js'
+import { Page } from '../page.js'
+import { auth, supabase, ensureUserRecord, getUserRole } from '../../js/services/supabase.js'
+import { NavBar } from '../../js/components/navbar.js'
+import './style.css'
+import template from './index.html?raw'
 
 export class DashboardPage extends Page {
     constructor(container, router) {
@@ -29,68 +31,19 @@ export class DashboardPage extends Page {
         // Load shortcuts
         await this.loadShortcuts()
 
-        this.container.innerHTML = NavBar.createHTML(this.user, 'dashboard', this.userRole) + `
+        this.container.innerHTML = NavBar.createHTML(this.user, 'dashboard', this.userRole) + template
 
-      <div class="container mt-5 mb-5">
-        <!-- Header Section -->
-        <div class="row mb-5">
-          <div class="col">
-            <h1 class="mb-2">Welcome, ${this.user.email.split('@')[0]}! 👋</h1>
-            <p class="text-muted">Manage your application shortcuts and quick links</p>
-          </div>
-          <div class="col-auto d-flex align-items-center">
-            <button class="btn btn-primary" id="addShortcutBtn">
-              <i class="bi bi-plus-circle"></i> Create Shortcut
-            </button>
-          </div>
-        </div>
+        // Set user greeting
+        const userGreeting = this.container.querySelector('#userGreeting')
+        if (userGreeting) {
+            userGreeting.textContent = this.user.email.split('@')[0]
+        }
 
-        <!-- Alert Messages -->
-        <div id="errorAlert" class="alert alert-danger d-none" role="alert"></div>
-        <div id="successAlert" class="alert alert-success d-none" role="alert"></div>
-
-        <!-- Shortcuts Grid -->
-        <div class="row" id="shortcutsContainer">
-          ${this.renderShortcuts()}
-        </div>
-      </div>
-
-      <!-- Add/Edit Shortcut Modal -->
-      <div class="modal fade" id="shortcutModal" tabindex="-1">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="modalTitle">Add Shortcut</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-              <form id="shortcutForm">
-                <div class="mb-3">
-                  <label for="shortcutName" class="form-label">Name</label>
-                  <input type="text" class="form-control" id="shortcutName" required>
-                </div>
-                <div class="mb-3">
-                  <label for="shortcutUrl" class="form-label">URL or Local Address</label>
-                  <input type="text" class="form-control" id="shortcutUrl" placeholder="https://example.com or http://192.168.1.100:8080" required>
-                </div>
-                <div class="mb-3">
-                  <label for="shortcutIcon" class="form-label">Icon (Bootstrap Icon Class)</label>
-                  <input type="text" class="form-control" id="shortcutIcon" placeholder="bi-plus-circle" value="bi-link-45deg">
-                </div>
-                <div class="mb-3">
-                  <label for="shortcutDescription" class="form-label">Description</label>
-                  <textarea class="form-control" id="shortcutDescription" rows="2"></textarea>
-                </div>
-              </form>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-              <button type="button" class="btn btn-primary" id="saveShortcutBtn">Save Shortcut</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    `
+        // Render shortcuts
+        const shortcutsContainer = this.container.querySelector('#shortcutsContainer')
+        if (shortcutsContainer) {
+            shortcutsContainer.innerHTML = this.renderShortcuts()
+        }
 
         this.setupEventListeners()
         this.setPageTitle()
@@ -364,4 +317,3 @@ export class DashboardPage extends Page {
         return div.innerHTML
     }
 }
-

@@ -1,10 +1,10 @@
 // Simple client-side router
-import { IndexPage } from './pages/index-page.js'
-import { DashboardPage } from './pages/dashboard-page.js'
-import { LoginPage } from './pages/login-page.js'
-import { RegisterPage } from './pages/register-page.js'
-import { SettingsPage } from './pages/settings-page.js'
-import { AdminPage } from './pages/admin/admin-page.js'
+import { IndexPage } from '../pages/home/index.js'
+import { DashboardPage } from '../pages/dashboard/index.js'
+import { LoginPage } from '../pages/login/index.js'
+import { RegisterPage } from '../pages/register/index.js'
+import { SettingsPage } from '../pages/settings/index.js'
+import { AdminPage } from '../pages/admin/index.js'
 
 export class Router {
     constructor(appContainer) {

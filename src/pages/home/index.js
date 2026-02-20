@@ -1,5 +1,7 @@
 // Home/Index Page
-import { Page } from './page.js'
+import { Page } from '../page.js'
+import './style.css'
+import template from './index.html?raw'
 
 export class IndexPage extends Page {
     constructor(container, router) {
@@ -28,48 +30,13 @@ export class IndexPage extends Page {
     }
 
     async render() {
-        this.container.innerHTML = `
-      <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container-fluid">
-          <a class="navbar-brand" href="#/">
-            <i class="bi bi-speedometer2"></i> App Dashboard
-          </a>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-          </button>
-          <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto">
-              <li class="nav-item">
-                <a class="nav-link" href="#/login">Login</a>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </nav>
+        this.container.innerHTML = template
 
-      <section class="home-hero">
-        <div class="container text-center">
-          <div class="home-hero-badge">Demo Mode</div>
-          <h1 class="home-hero-title">Welcome to Application Dashboard</h1>
-          <p class="home-hero-subtitle">Preview the experience, then unlock your personal workspace.</p>
-          <div class="mt-4">
-            <a href="#/login" class="btn btn-primary btn-lg">Login</a>
-          </div>
-        </div>
-      </section>
-
-      <section class="container mt-4 mb-5">
-        <div class="row mb-3">
-          <div class="col text-center">
-            <h4 class="mb-1">Demo Dashboard</h4>
-            <p class="text-muted mb-0">These cards are read-only until you sign in</p>
-          </div>
-        </div>
-        <div class="row" id="demoShortcuts">
-          ${this.renderDemoShortcuts()}
-        </div>
-      </section>
-    `
+        // Render demo shortcuts
+        const demoShortcutsContainer = this.container.querySelector('#demoShortcuts')
+        if (demoShortcutsContainer) {
+            demoShortcutsContainer.innerHTML = this.renderDemoShortcuts()
+        }
 
         // Add event listeners for navigation
         this.setupNavigation()

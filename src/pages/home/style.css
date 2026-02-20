@@ -1,0 +1,39 @@
+/* Home Page Styles */
+.home-hero {
+    background: linear-gradient(135deg, #f1f5ff 0%, #e9f6f1 50%, #fff4e6 100%);
+    padding: 4rem 0 3.5rem;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.home-hero-badge {
+    display: inline-block;
+    padding: 0.35rem 0.9rem;
+    border-radius: 999px;
+    background: #212529;
+    color: #fff;
+    font-size: 0.85rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+}
+
+.home-hero-title {
+    font-size: clamp(2.2rem, 3vw, 3rem);
+    margin-bottom: 0.5rem;
+}
+
+.home-hero-subtitle {
+    color: #495057;
+    font-size: 1.1rem;
+}
+
+.demo-card {
+    background: #ffffff;
+    border: 1px solid #e9ecef;
+    box-shadow: 0 6px 16px rgba(33, 37, 41, 0.08);
+}
+
+.demo-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 20px rgba(33, 37, 41, 0.12);
+}

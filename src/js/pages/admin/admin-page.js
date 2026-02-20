@@ -1,9 +1,10 @@
 // Admin Panel Page - Main Controller
-import { Page } from '../page.js'
+import { Page } from '../../../pages/page.js'
 import { auth, supabase, ensureUserRecord, isAdmin } from '../../services/supabase.js'
 import { NavBar } from '../../components/navbar.js'
 import { UsersManagement } from './users-management.js'
 import { ShortcutsManagement } from './shortcuts-management.js'
+import '../../../pages/admin/style.css'
 
 export class AdminPage extends Page {
     constructor(container, router) {

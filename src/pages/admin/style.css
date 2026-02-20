@@ -1,0 +1,44 @@
+/* Admin Page Styles */
+/* Tables and status badges */
+.table-hover tbody tr:hover {
+    background-color: #f5f5f5;
+}
+
+.badge {
+    font-weight: 500;
+}
+
+/* Modal improvements */
+.modal-header {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.modal-body {
+    padding: 2rem;
+}
+
+/* Button groups */
+.btn-group-sm .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+
+/* Admin tabs */
+.nav-tabs .nav-link {
+    border: none;
+    color: #6c757d;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+}
+
+.nav-tabs .nav-link:hover {
+    color: #0d6efd;
+    border-bottom-color: #0d6efd;
+}
+
+.nav-tabs .nav-link.active {
+    color: #0d6efd;
+    border-bottom-color: #0d6efd;
+    background-color: transparent;
+}
