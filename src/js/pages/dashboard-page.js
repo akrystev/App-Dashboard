@@ -34,6 +34,11 @@ export class DashboardPage extends Page {
             <h1 class="mb-2">Welcome, ${this.user.email.split('@')[0]}! 👋</h1>
             <p class="text-muted">Manage your application shortcuts and quick links</p>
           </div>
+          <div class="col-auto d-flex align-items-center">
+            <button class="btn btn-primary" id="addShortcutBtn">
+              <i class="bi bi-plus-circle"></i> Create Shortcut
+            </button>
+          </div>
         </div>
 
         <!-- Alert Messages -->
