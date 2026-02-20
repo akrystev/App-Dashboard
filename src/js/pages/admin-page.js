@@ -18,24 +18,31 @@ export class AdminPage extends Page {
         // Check if user is authenticated
         this.user = await auth.getCurrentUser()
         if (!this.user) {
+            console.warn('No authenticated user')
             this.router.push('/login')
             return
         }
+
+        console.log('Admin page - Current user:', this.user.email, this.user.id)
 
         await ensureUserRecord(this.user)
 
         // Check if user is admin
         const userIsAdmin = await isAdmin(this.user.id)
+        console.log('Admin page - Is admin check result:', userIsAdmin)
+
         if (!userIsAdmin) {
+            console.warn('User is not admin, redirecting to dashboard')
             this.router.push('/dashboard')
             return
         }
 
+        console.log('User is admin, loading admin panel')
         // Load data
         await this.loadUsers()
         await this.loadAllShortcuts()
 
-        this.container.innerHTML = NavBar.createHTML(this.user, 'admin') + `
+        this.container.innerHTML = NavBar.createHTML(this.user, 'admin', 'admin') + `
       <div class="container mt-5 mb-5">
         <!-- Header Section -->
         <div class="row mb-5">

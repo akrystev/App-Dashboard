@@ -75,32 +75,22 @@ export async function ensureUserRecord(user) {
     }
 }
 
-// Check if a user is an admin
+// Check if a user is an admin - check users table (source of truth)
 export async function isAdmin(userId) {
     try {
-        // Check user_roles table
-        const { data: roleData, error: roleError } = await supabase
-            .from('user_roles')
-            .select('role')
-            .eq('user_id', userId)
-            .eq('role', 'admin')
-            .single()
-
-        if (!roleError && roleData) {
-            return true
-        }
-
-        // Fallback to users table
+        // Check users table for admin role
         const { data: userData, error: userError } = await supabase
             .from('users')
             .select('role')
             .eq('id', userId)
-            .single()
+            .limit(1)
 
-        if (!userError && userData?.role === 'admin') {
+        if (!userError && userData && userData.length > 0 && userData[0].role === 'admin') {
+            console.log(`✓ ${userId} is admin`)
             return true
         }
 
+        console.log(`✗ ${userId} is NOT admin`)
         return false
     } catch (err) {
         console.warn('Error checking admin status:', err)
@@ -108,33 +98,23 @@ export async function isAdmin(userId) {
     }
 }
 
-// Get user role
+// Get user role - check users table first (most reliable)
 export async function getUserRole(userId) {
     try {
-        // Check user_roles table first
-        const { data: roleData, error: roleError } = await supabase
-            .from('user_roles')
-            .select('role')
-            .eq('user_id', userId)
-            .order('assigned_at', { ascending: false })
-            .limit(1)
-            .single()
-
-        if (!roleError && roleData) {
-            return roleData.role
-        }
-
-        // Fallback to users table
+        // Always check users table first - it's the source of truth
         const { data: userData, error: userError } = await supabase
             .from('users')
             .select('role')
             .eq('id', userId)
-            .single()
+            .limit(1)
 
-        if (!userError && userData?.role) {
-            return userData.role
+        if (!userError && userData && userData.length > 0) {
+            const role = userData[0].role
+            console.log(`User role: ${role}`)
+            return role || 'user'
         }
 
+        console.warn(`Could not find role in users table for user ${userId}`)
         return 'user'
     } catch (err) {
         console.warn('Error getting user role:', err)
