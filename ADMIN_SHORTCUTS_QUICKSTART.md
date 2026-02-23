@@ -6,7 +6,7 @@
 
 1. **Login as Admin**
    - Email: `admin@demo.com`
-   - Password: `admin123`
+   - Password: `Admin2026Secure!`
 
 2. **Navigate to Admin Panel**
    - Click "Admin Panel" in the navbar

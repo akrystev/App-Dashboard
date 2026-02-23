@@ -8,8 +8,8 @@ If you have deployed the `create-demo-users` edge function to Supabase:
 2. Navigate to **Edge Functions**
 3. Find and invoke `create-demo-users`
 4. This will create both accounts:
-   - **Regular User**: demo@demo.com / demo123
-   - **Admin User**: admin@demo.com / admin123
+   - **Regular User**: demo@demo.com / Demo2026Secure!
+   - **Admin User**: admin@demo.com / Admin2026Secure!
 
 ## Option 2: Using SQL Editor in Supabase Dashboard
 
@@ -124,7 +124,7 @@ After creating an admin user, verify by:
 
 For testing purposes, use these pre-configured accounts:
 
-- **Regular User**: demo@demo.com / demo123
-- **Admin User**: admin@demo.com / admin123
+- **Regular User**: demo@demo.com / Demo2026Secure!
+- **Admin User**: admin@demo.com / Admin2026Secure!
 
 (Note: These accounts need to be created first using the edge function or SQL)

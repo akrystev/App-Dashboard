@@ -93,13 +93,15 @@ Demo accounts are available for testing:
 
 **Regular User:**
 - **Email**: demo@demo.com
-- **Password**: demo123
+- **Password**: Demo2026Secure!
 
 **Admin User:**
 - **Email**: admin@demo.com
-- **Password**: admin123
+- **Password**: Admin2026Secure!
 
 Use these credentials to login and test the dashboard functionality without creating a new account. The admin account has access to the Admin Panel for managing all users and shortcuts.
+
+> **Security Note**: These are demo/test credentials. In production, use strong unique passwords and enable MFA.
 
 ### Building for Production
 

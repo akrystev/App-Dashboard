@@ -32,7 +32,7 @@ The administrator should be able to manage all users and their shortcuts, e.g. d
     • Implement admin panel (or similar concept for special users, different from regular).
     • Implement RLS policies to restrict access to data based on user roles and permissions.
     • Implement user roles with separate DB table `user_roles`  + enum `roles` (e.g. admin, user, etc.)
-    • Provide sample credentials (e.g. demo / demo123) to simplify testing the app.
+    • Provide sample credentials (demo@demo.com / Demo2026Secure! and admin@demo.com / Admin2026Secure!) to simplify testing the app.
     • When changing the database schema, always use Supabase Migrations to keep track and changes.
     • Never change the database schema directly in the Supabase UI without using Migrations, because it will cause problems with the project maintenance and deployment.
     • Never hardcode credentials in the code, use environment variables instead.
@@ -56,7 +56,7 @@ The administrator should be able to manage all users and their shortcuts, e.g. d
     • The project should use file upload and download somewhere, e.g. profile pictures or product photos.
 ## Deployment
     • The project should be deployed live on the Internet in this case in Netlify.
-    • Provide sample credentials (e.g. demo / demo123) to simplify testing the app.
+    • Provide sample credentials (demo@demo.com / Demo2026Secure! and admin@demo.com / Admin2026Secure!) to simplify testing the app.
 ## Pages and Navigation
     • Use routing to navigate between pages.
     • Use full URLs like: /, /login, /register, /dashboards, /admin, etc.
