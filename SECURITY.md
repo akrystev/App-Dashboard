@@ -57,6 +57,7 @@ The application implements two user roles:
 2. **admin**
    - Full access to all user data
    - Can manage user accounts (activate, suspend, delete)
+   - Can create new user accounts
    - Can view and delete any shortcuts
    - Access to admin panel
    - Can assign/revoke user roles
@@ -285,6 +286,17 @@ $$ LANGUAGE plpgsql STABLE SECURITY DEFINER;
 ---
 
 ## 📋 Security Checklist
+
+### Admin Panel Features
+
+- [x] View all users and their data
+- [x] Edit user status and roles
+- [x] Delete users
+- [x] Create new users
+- [x] View all shortcuts
+- [x] Delete shortcuts
+- [x] Create shortcuts
+- [x] Manage shortcut visibility
 
 ### Initial Setup
 

@@ -176,6 +176,48 @@ export class AdminPage extends Page {
             </div>
           </div>
         </div>
+
+        <!-- Create User Modal -->
+        <div class="modal fade" id="createUserModal" tabindex="-1">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-person-plus"></i> Create New User</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+              </div>
+              <div class="modal-body">
+                <form id="createUserForm">
+                  <div class="mb-3">
+                    <label for="newUserEmail" class="form-label">Email *</label>
+                    <input type="email" class="form-control" id="newUserEmail" placeholder="user@example.com" required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="newUserPassword" class="form-label">Password *</label>
+                    <input type="password" class="form-control" id="newUserPassword" placeholder="Minimum 6 characters" required>
+                    <small class="text-muted">Password must be at least 6 characters long</small>
+                  </div>
+                  <div class="mb-3">
+                    <label for="newUserRole" class="form-label">Role</label>
+                    <select class="form-select" id="newUserRole">
+                      <option value="user">User</option>
+                      <option value="admin">Admin</option>
+                    </select>
+                  </div>
+                  <div class="alert alert-info" role="alert">
+                    <i class="bi bi-info-circle"></i> 
+                    The user will be created with an active status.
+                  </div>
+                </form>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" id="createUserSubmitBtn">
+                  <i class="bi bi-person-plus"></i> Create User
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     `
 
@@ -244,6 +286,7 @@ export class AdminPage extends Page {
     // Get all navigation links
     const navigationLinks = this.container.querySelectorAll('a[href^="#"]:not(.dropdown-toggle)')
     const saveUserBtn = this.container.querySelector('#saveUserBtn')
+    const createUserSubmitBtn = this.container.querySelector('#createUserSubmitBtn')
     const createShortcutSubmitBtn = this.container.querySelector('#createShortcutSubmitBtn')
 
     // Setup navbar event listeners
@@ -264,6 +307,9 @@ export class AdminPage extends Page {
 
     // Save user button
     saveUserBtn?.addEventListener('click', () => this.usersManagement.saveUser())
+
+    // Create user button
+    createUserSubmitBtn?.addEventListener('click', () => this.usersManagement.createUser())
 
     // Create shortcut button
     createShortcutSubmitBtn?.addEventListener('click', () => this.shortcutsManagement.createShortcut())

@@ -8,16 +8,12 @@ export class UsersManagement {
     }
 
     renderUsersTable() {
-        if (this.adminPage.users.length === 0) {
-            return `
+        const tableContent = this.adminPage.users.length === 0 ? `
         <div class="alert alert-info text-center">
           <i class="bi bi-inbox display-4"></i>
           <p class="mt-3">No users found</p>
         </div>
-      `
-        }
-
-        return `
+      ` : `
       <div class="table-responsive">
         <table class="table table-hover">
           <thead>
@@ -33,8 +29,8 @@ export class UsersManagement {
           </thead>
           <tbody>
             ${this.adminPage.users
-                .map(
-                    user => `
+            .map(
+                user => `
               <tr>
                 <td>${this.escapeHtml(user.email)}</td>
                 <td>
@@ -64,17 +60,29 @@ export class UsersManagement {
                 </td>
               </tr>
             `
-                )
-                .join('')}
+            )
+            .join('')}
           </tbody>
         </table>
       </div>
     `
+
+        return `
+      <div class="mb-3">
+        <button class="btn btn-success" id="createUserBtn">
+          <i class="bi bi-person-plus"></i> Create New User
+        </button>
+      </div>
+      ${tableContent}
+    `
     }
 
     setupEventListeners(container) {
+        const createUserBtn = container.querySelector('#createUserBtn')
         const editButtons = container.querySelectorAll('.edit-user-btn')
         const deleteButtons = container.querySelectorAll('.delete-user-btn')
+
+        createUserBtn?.addEventListener('click', () => this.openCreateUserModal())
 
         editButtons.forEach(btn => {
             btn.addEventListener('click', () => {
@@ -91,6 +99,13 @@ export class UsersManagement {
         })
     }
 
+    openCreateUserModal() {
+        const modal = new bootstrap.Modal(this.container.querySelector('#createUserModal'))
+        const form = this.container.querySelector('#createUserForm')
+        if (form) form.reset()
+        modal.show()
+    }
+
     openEditUserModal(userId) {
         const user = this.adminPage.users.find(u => u.id === userId)
         if (!user) return
@@ -101,6 +116,124 @@ export class UsersManagement {
         this.container.querySelector('#userRole').value = user.role || 'user'
         this.container.querySelector('#editUserForm').dataset.userId = userId
         modal.show()
+    }
+
+    async createUser() {
+        const form = this.container.querySelector('#createUserForm')
+        const email = this.container.querySelector('#newUserEmail')?.value?.trim()
+        const password = this.container.querySelector('#newUserPassword')?.value?.trim()
+        const role = this.container.querySelector('#newUserRole')?.value || 'user'
+
+        if (!email || !password) {
+            this.adminPage.showError('Email and password are required')
+            return
+        }
+
+        if (password.length < 6) {
+            this.adminPage.showError('Password must be at least 6 characters')
+            return
+        }
+
+        let adminSession = null
+
+        try {
+            // Store current admin session before creating new user
+            const { data: { session: currentSession } } = await supabase.auth.getSession()
+
+            if (!currentSession) {
+                throw new Error('No active admin session found')
+            }
+
+            adminSession = currentSession
+
+            // Register the user using Supabase Auth
+            // Note: This will temporarily switch to the new user's session
+            const { data: authData, error: signUpError } = await supabase.auth.signUp({
+                email,
+                password,
+                options: {
+                    emailRedirectTo: window.location.origin
+                }
+            })
+
+            if (signUpError) throw signUpError
+
+            if (!authData.user) {
+                throw new Error('User creation failed')
+            }
+
+            const newUserId = authData.user.id
+
+            // IMPORTANT: Restore admin session immediately
+            await supabase.auth.setSession({
+                access_token: adminSession.access_token,
+                refresh_token: adminSession.refresh_token
+            })
+
+            // Create user record in users table
+            const { error: userError } = await supabase
+                .from('users')
+                .insert({
+                    id: newUserId,
+                    email: email,
+                    role: role,
+                    status: 'active'
+                })
+
+            if (userError) {
+                console.warn('User record creation warning:', userError)
+            }
+
+            // Add user role
+            const { error: roleError } = await supabase
+                .from('user_roles')
+                .insert({
+                    user_id: newUserId,
+                    role: role,
+                    assigned_by: this.adminPage.user.id
+                })
+
+            if (roleError) {
+                console.warn('User role assignment warning:', roleError)
+            }
+
+            this.adminPage.showSuccess(`User "${email}" created successfully`)
+
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(this.container.querySelector('#createUserModal'))
+            modal?.hide()
+
+            // Verify admin session is restored
+            const { data: { user: verifyUser } } = await supabase.auth.getUser()
+            if (!verifyUser || verifyUser.id !== this.adminPage.user.id) {
+                console.warn('Admin session verification failed, attempting to reload page')
+                window.location.reload()
+                return
+            }
+
+            // Reload users
+            await this.adminPage.loadUsers()
+            const usersTab = this.container.querySelector('#users')
+            if (usersTab) {
+                usersTab.innerHTML = this.renderUsersTable()
+                this.setupEventListeners(this.container)
+                this.adminPage.setupEventListeners()
+            }
+        } catch (err) {
+            // Try to restore admin session on error
+            if (adminSession) {
+                try {
+                    await supabase.auth.setSession({
+                        access_token: adminSession.access_token,
+                        refresh_token: adminSession.refresh_token
+                    })
+                } catch (restoreErr) {
+                    console.error('Failed to restore session after error:', restoreErr)
+                }
+            }
+
+            this.adminPage.showError('Error creating user: ' + err.message)
+        }
     }
 
     async saveUser() {
