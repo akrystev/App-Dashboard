@@ -164,13 +164,8 @@ export class UsersManagement {
 
             const newUserId = authData.user.id
 
-            // IMPORTANT: Restore admin session immediately
-            await supabase.auth.setSession({
-                access_token: adminSession.access_token,
-                refresh_token: adminSession.refresh_token
-            })
-
-            // Create user record in users table
+            // Create user record in users table BEFORE restoring admin session
+            // (RLS policies allow users to insert their own record)
             const { error: userError } = await supabase
                 .from('users')
                 .insert({
@@ -181,21 +176,29 @@ export class UsersManagement {
                 })
 
             if (userError) {
-                console.warn('User record creation warning:', userError)
+                console.error('User record creation failed:', userError)
+                throw new Error(`Failed to create user record: ${userError.message}`)
             }
 
-            // Add user role
+            // Add user role while we still have the user's session
             const { error: roleError } = await supabase
                 .from('user_roles')
                 .insert({
                     user_id: newUserId,
                     role: role,
-                    assigned_by: this.adminPage.user.id
+                    assigned_by: adminSession.user?.id || this.adminPage.user.id
                 })
 
             if (roleError) {
-                console.warn('User role assignment warning:', roleError)
+                console.error('User role assignment failed:', roleError)
+                throw new Error(`Failed to assign user role: ${roleError.message}`)
             }
+
+            // NOW restore admin session after all user data is created
+            await supabase.auth.setSession({
+                access_token: adminSession.access_token,
+                refresh_token: adminSession.refresh_token
+            })
 
             this.adminPage.showSuccess(`User "${email}" created successfully`)
 
