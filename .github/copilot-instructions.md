@@ -26,10 +26,16 @@ The administrator should be able to manage all users and their shortcuts, e.g. d
     • Use Supabase Auth for authentication (users, register, login, logout).
     • Use Supabase Storage to upload photos and files at the server-side.
     • Optionally, use Supabase Edge Functions for special server-side interactions.
-## Authentication
+## Authentication and Authorization
     • Use Supabase Auth for authentication.
     • Implement users (register, login, logout) and roles (normal and admin users).
     • Implement admin panel (or similar concept for special users, different from regular).
+    • Implement RLS policies to restrict access to data based on user roles and permissions.
+    • Implement user roles with separate DB table `user_roles`  + enum `roles` (e.g. admin, user, etc.)
+    • Provide sample credentials (e.g. demo / demo123) to simplify testing the app.
+    • When changing the database schema, always use Supabase Migrations to keep track and changes.
+    • Never change the database schema directly in the Supabase UI without using Migrations, because it will cause problems with the project maintenance and deployment.
+    • Never hardcode credentials in the code, use environment variables instead.
 ## Database
     • The database should hold minimum 4 DB tables (with relationships between them).
     • Example: users, user roles, user profiles, shortcuts, pictures, comments.
@@ -54,7 +60,3 @@ The administrator should be able to manage all users and their shortcuts, e.g. d
 ## Pages and Navigation
     • Use routing to navigate between pages.
     • Use full URLs like: /, /login, /register, /dashboards, /admin, etc.
-## Authentication and Authorization
-    • Use Supabase Auth for user authentication and authorization.
-    • Implement RLS policies to restrict access to data based on user roles and permissions.
-    • Implement user roles with separate DB table `user_roles`  + enum `roles` (e.g. admin, user, etc.)

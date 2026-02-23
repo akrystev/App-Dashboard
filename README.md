@@ -72,6 +72,12 @@ VITE_SUPABASE_URL=your_supabase_project_url
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
 
+5. (Optional) Set up VS Code MCP configuration:
+```bash
+cp .vscode/mcp.json.example .vscode/mcp.json
+```
+Then edit `.vscode/mcp.json` with your Supabase project reference.
+
 ### Development
 
 Start the development server:
