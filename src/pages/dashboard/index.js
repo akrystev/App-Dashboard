@@ -244,7 +244,7 @@ export class DashboardPage extends Page {
                 this.showSuccess('Shortcut updated successfully')
             } else {
                 // Create new
-                const { error } = await supabase
+                const { data: newShortcut, error } = await supabase
                     .from('shortcuts')
                     .insert({
                         user_id: this.user.id,
@@ -253,8 +253,26 @@ export class DashboardPage extends Page {
                         icon,
                         description
                     })
+                    .select()
 
                 if (error) throw error
+
+                // Automatically grant owner access to their shortcut
+                if (newShortcut && newShortcut[0]) {
+                    const { error: visibilityError } = await supabase
+                        .from('shortcut_visibility')
+                        .insert({
+                            shortcut_id: newShortcut[0].id,
+                            user_id: this.user.id,
+                            granted_by: this.user.id
+                        })
+
+                    if (visibilityError) {
+                        console.warn('Could not add owner to visibility:', visibilityError)
+                        // Don't fail the whole operation if this fails
+                    }
+                }
+
                 this.showSuccess('Shortcut created successfully')
             }
 

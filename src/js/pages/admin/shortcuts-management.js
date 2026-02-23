@@ -295,6 +295,24 @@ export class ShortcutsManagement {
 
       if (createError) throw createError
 
+      // Automatically grant owner access to their shortcut
+      if (shortcut && shortcut[0]) {
+        const { error: visibilityError } = await supabase
+          .from('shortcut_visibility')
+          .insert([
+            {
+              shortcut_id: shortcut[0].id,
+              user_id: this.adminPage.user.id,
+              granted_by: this.adminPage.user.id
+            }
+          ])
+
+        if (visibilityError) {
+          console.warn('Could not add owner to visibility:', visibilityError)
+          // Don't fail the whole operation if this fails
+        }
+      }
+
       this.adminPage.showSuccess('Shortcut created successfully')
 
       // Close modal
