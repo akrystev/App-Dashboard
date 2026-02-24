@@ -118,6 +118,7 @@ export class AdminPage extends Page {
                   <div class="mb-3">
                     <label for="shortcutUrl" class="form-label">URL *</label>
                     <input type="url" class="form-control" id="shortcutUrl" placeholder="https://google.com" required>
+                    <small class="form-text text-muted">Don't forget to add "http://" or "https://"</small>
                   </div>
                   <div class="mb-3">
                     <label for="shortcutIcon" class="form-label">Icon Class</label>
