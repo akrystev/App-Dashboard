@@ -122,10 +122,16 @@ export class UsersManagement {
         const form = this.container.querySelector('#createUserForm')
         const email = this.container.querySelector('#newUserEmail')?.value?.trim()
         const password = this.container.querySelector('#newUserPassword')?.value?.trim()
+        const repeatPassword = this.container.querySelector('#newUserRepeatPassword')?.value?.trim()
         const role = this.container.querySelector('#newUserRole')?.value || 'user'
 
-        if (!email || !password) {
-            this.adminPage.showError('Email and password are required')
+        if (!email || !password || !repeatPassword) {
+            this.adminPage.showError('Email, password, and repeat password are required')
+            return
+        }
+
+        if (password !== repeatPassword) {
+            this.adminPage.showError('Passwords do not match')
             return
         }
 
@@ -289,20 +295,61 @@ export class UsersManagement {
         }
 
         try {
-            const { error } = await supabase
-                .from('users')
-                .delete()
-                .eq('id', userId)
+            // Check if user is authenticated
+            const { data: sessionData } = await supabase.auth.getSession()
+            if (!sessionData.session) {
+                throw new Error('You must be logged in to delete users')
+            }
 
-            if (error) throw error
+            console.log('Session exists, calling Edge Function delete-user with userId:', userId)
+
+            const { data, error: fnError } = await supabase.functions.invoke('delete-user', {
+                body: { userId }
+            })
+
+            console.log('Edge Function response:', { data, fnError })
+
+            if (fnError) {
+                // Try to get more details from the response
+                let errorDetails = {
+                    name: fnError.name,
+                    message: fnError.message,
+                    status: fnError.context?.status,
+                    statusText: fnError.context?.statusText
+                }
+
+                // Try to read the response body
+                if (fnError.context && typeof fnError.context.text === 'function') {
+                    try {
+                        const bodyText = await fnError.context.text()
+                        console.error('Response body:', bodyText)
+                        errorDetails.responseBody = bodyText
+                    } catch (e) {
+                        console.error('Could not read response body:', e)
+                    }
+                }
+
+                console.error('Edge Function error details:', errorDetails)
+                throw new Error(`Failed to delete user: ${errorDetails.responseBody || fnError.message}`)
+            }
+
+            if (data && data.error) {
+                throw new Error(data.error)
+            }
+
+            console.log('User deleted successfully via Edge Function:', data)
 
             this.adminPage.showSuccess('User deleted successfully')
 
+            // Reload users from database
             await this.adminPage.loadUsers()
+
+            // Update the users tab display
             const usersTab = this.container.querySelector('#users')
             if (usersTab) {
                 usersTab.innerHTML = this.renderUsersTable()
                 this.setupEventListeners(this.container)
+                this.adminPage.setupEventListeners()
             }
         } catch (err) {
             this.adminPage.showError('Error deleting user: ' + err.message)

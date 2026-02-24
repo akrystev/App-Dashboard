@@ -105,6 +105,7 @@ export class ShortcutsManagement {
     const deleteButtons = container.querySelectorAll('.delete-shortcut-btn')
     const createShortcutBtn = container.querySelector('#createShortcutBtn')
     const manageAccessButtons = container.querySelectorAll('.manage-access-btn')
+    const saveAccessBtn = container.querySelector('#saveAccessBtn')
 
     createShortcutBtn?.addEventListener('click', () => this.openCreateShortcutModal())
 
@@ -121,6 +122,9 @@ export class ShortcutsManagement {
         this.openManageAccessModal(shortcutId)
       })
     })
+
+    // Setup save access button
+    saveAccessBtn?.addEventListener('click', () => this.saveShortcutAccess())
   }
 
   openCreateShortcutModal() {
@@ -160,7 +164,7 @@ export class ShortcutsManagement {
       if (visibilityError) throw visibilityError
       const visibleUserIds = new Set((visibilityData || []).map(v => v.user_id))
 
-      // Build modal content
+      // Build user list HTML
       const userListHtml = this.availableUsers
         .map(user => {
           const isChecked = visibleUserIds.has(user.id)
@@ -175,48 +179,32 @@ export class ShortcutsManagement {
         })
         .join('')
 
-      const modalContent = document.createElement('div')
-      modalContent.className = 'modal fade'
-      modalContent.id = 'manageAccessModal'
-      modalContent.tabIndex = '-1'
-      modalContent.innerHTML = `
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title">Manage Access for "${this.escapeHtml(shortcut.name)}"</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                        </div>
-                        <div class="modal-body" style="max-height: 400px; overflow-y: auto;">
-                            <p class="text-muted small mb-3">Select which users can see this shortcut:</p>
-                            ${userListHtml}
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                            <button type="button" class="btn btn-primary" id="saveAccessBtn">Save Changes</button>
-                        </div>
-                    </div>
-                </div>
-            `
+      // Update modal title and content
+      const modalBody = document.getElementById('manageAccessBody')
+      if (modalBody) {
+        modalBody.innerHTML = `
+                    <p class="text-muted small mb-3"><strong>Shortcut:</strong> ${this.escapeHtml(shortcut.name)}</p>
+                    <p class="text-muted small mb-3">Select which users can see this shortcut:</p>
+                    ${userListHtml || '<p class="text-muted">No users available</p>'}
+                `
+      }
 
-      // Remove old modal if exists
-      const oldModal = document.getElementById('manageAccessModal')
-      if (oldModal) oldModal.remove()
-
-      document.body.appendChild(modalContent)
-
-      // Setup save button
-      const saveBtn = modalContent.querySelector('#saveAccessBtn')
-      saveBtn.addEventListener('click', () => this.saveShortcutAccess(modalContent))
+      // Update modal title
+      const modalTitle = document.querySelector('#manageAccessModal .modal-title')
+      if (modalTitle) {
+        modalTitle.innerHTML = `<i class="bi bi-people"></i> Share "${this.escapeHtml(shortcut.name)}"`
+      }
 
       // Show modal
-      const modal = new (window.bootstrap || {}).Modal(modalContent)
+      const modal = new (window.bootstrap || {}).Modal(document.getElementById('manageAccessModal'))
       modal.show()
     } catch (err) {
       this.adminPage.showError('Error loading access settings: ' + err.message)
     }
   }
 
-  async saveShortcutAccess(modalElement) {
+  async saveShortcutAccess() {
+    const modalElement = document.getElementById('manageAccessModal')
     const checkboxes = modalElement.querySelectorAll('.user-access-check')
     const selectedUserIds = Array.from(checkboxes)
       .filter(cb => cb.checked)

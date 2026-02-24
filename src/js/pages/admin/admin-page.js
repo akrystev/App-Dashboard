@@ -197,6 +197,10 @@ export class AdminPage extends Page {
                     <small class="text-muted">Password must be at least 6 characters long</small>
                   </div>
                   <div class="mb-3">
+                    <label for="newUserRepeatPassword" class="form-label">Repeat Password *</label>
+                    <input type="password" class="form-control" id="newUserRepeatPassword" placeholder="Confirm password" required>
+                  </div>
+                  <div class="mb-3">
                     <label for="newUserRole" class="form-label">Role</label>
                     <select class="form-select" id="newUserRole">
                       <option value="user">User</option>
@@ -213,6 +217,27 @@ export class AdminPage extends Page {
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                 <button type="button" class="btn btn-success" id="createUserSubmitBtn">
                   <i class="bi bi-person-plus"></i> Create User
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Manage Shortcut Access Modal -->
+        <div class="modal fade" id="manageAccessModal" tabindex="-1">
+          <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-people"></i> Share Shortcut</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+              </div>
+              <div class="modal-body" id="manageAccessBody">
+                <p class="text-muted">Loading users...</p>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="saveAccessBtn">
+                  <i class="bi bi-check"></i> Save Changes
                 </button>
               </div>
             </div>
@@ -235,17 +260,35 @@ export class AdminPage extends Page {
                     status,
                     role,
                     created_at,
-                    last_login,
-                    shortcuts:shortcuts(count)
+                    last_login
                 `)
         .order('created_at', { ascending: false })
 
       if (error) throw error
 
-      this.users = (data || []).map(user => ({
-        ...user,
-        shortcut_count: user.shortcuts?.[0]?.count || 0
-      }))
+      // Load shortcut counts separately
+      let usersData = data || []
+      if (usersData.length > 0) {
+        const userIds = usersData.map(u => u.id)
+        const { data: shortcutCounts } = await supabase
+          .from('shortcuts')
+          .select('user_id')
+          .in('user_id', userIds)
+
+        const countMap = {}
+        if (shortcutCounts) {
+          shortcutCounts.forEach(s => {
+            countMap[s.user_id] = (countMap[s.user_id] || 0) + 1
+          })
+        }
+
+        usersData = usersData.map(user => ({
+          ...user,
+          shortcut_count: countMap[user.id] || 0
+        }))
+      }
+
+      this.users = usersData
     } catch (err) {
       console.error('Error loading users:', err)
       this.showError('Failed to load users: ' + err.message)
@@ -264,17 +307,35 @@ export class AdminPage extends Page {
                     icon,
                     description,
                     created_at,
-                    user_id,
-                    users!shortcuts_to_users_fkey(email)
+                    user_id
                 `)
         .order('created_at', { ascending: false })
 
       if (error) throw error
 
-      this.shortcuts = (data || []).map(shortcut => ({
-        ...shortcut,
-        user_email: shortcut.users?.email || 'Unknown'
-      }))
+      // Load user emails separately to avoid RLS join issues
+      let shortcutsWithEmails = data || []
+      if (shortcutsWithEmails.length > 0) {
+        const userIds = [...new Set(shortcutsWithEmails.map(s => s.user_id))]
+        const { data: usersData } = await supabase
+          .from('users')
+          .select('id, email')
+          .in('id', userIds)
+
+        const userMap = {}
+        if (usersData) {
+          usersData.forEach(u => {
+            userMap[u.id] = u.email
+          })
+        }
+
+        shortcutsWithEmails = shortcutsWithEmails.map(s => ({
+          ...s,
+          user_email: userMap[s.user_id] || 'Unknown'
+        }))
+      }
+
+      this.shortcuts = shortcutsWithEmails
     } catch (err) {
       console.error('Error loading shortcuts:', err)
       this.showError('Failed to load shortcuts: ' + err.message)
