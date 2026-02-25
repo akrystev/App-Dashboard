@@ -1,33 +1,41 @@
-<div class="container-fluid mt-4 mb-5 px-3 px-md-4">
+<div class="container-fluid mt-5 mb-5 px-3 px-md-4">
   <!-- Header Section -->
-  <div class="row mb-5">
+  <div class="row mb-5 pb-4 border-bottom">
     <div class="col">
-      <h1 class="mb-2">Settings</h1>
-      <p class="text-muted">Manage your account settings and preferences</p>
+      <h1 class="mb-2">
+        <i class="bi bi-sliders me-2"></i>Settings
+      </h1>
+      <p class="text-muted">Manage your account settings, profile, and preferences</p>
     </div>
   </div>
 
   <!-- Alert Messages -->
-  <div id="errorAlert" class="alert alert-danger d-none" role="alert"></div>
-  <div id="successAlert" class="alert alert-success d-none" role="alert"></div>
+  <div id="errorAlert" class="alert alert-danger d-none" role="alert">
+    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+    <span id="errorMessage"></span>
+  </div>
+  <div id="successAlert" class="alert alert-success d-none" role="alert">
+    <i class="bi bi-check-circle-fill me-2"></i>
+    <span id="successMessage"></span>
+  </div>
 
   <!-- Settings Tabs -->
   <ul class="nav nav-tabs mb-4" role="tablist">
     <li class="nav-item" role="presentation">
       <button class="nav-link active" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile" type="button"
         role="tab">
-        <i class="bi bi-person-fill"></i> Profile
+        <i class="bi bi-person-circle me-2"></i>Profile
       </button>
     </li>
     <li class="nav-item" role="presentation">
       <button class="nav-link" id="account-tab" data-bs-toggle="tab" data-bs-target="#account" type="button" role="tab">
-        <i class="bi bi-person"></i> Account
+        <i class="bi bi-gear me-2"></i>Account
       </button>
     </li>
     <li class="nav-item" role="presentation">
       <button class="nav-link" id="password-tab" data-bs-toggle="tab" data-bs-target="#password" type="button"
         role="tab">
-        <i class="bi bi-lock"></i> Password
+        <i class="bi bi-shield-lock me-2"></i>Password
       </button>
     </li>
   </ul>
@@ -37,55 +45,67 @@
     <!-- Profile Tab -->
     <div class="tab-pane fade show active" id="profile" role="tabpanel">
       <div class="row">
-        <div class="col-md-8">
-          <div class="card">
-            <div class="card-body">
-              <div class="d-flex justify-content-between align-items-center mb-4">
-                <h5 class="card-title mb-0">User Profile</h5>
-                <button type="button" class="btn btn-primary btn-sm" id="editProfileBtn">
-                  <i class="bi bi-pencil"></i> Edit Profile
-                </button>
+        <div class="col-lg-8">
+          <div class="settings-section">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h6 class="mb-0">
+                <i class="bi bi-person-circle me-2"></i>Your Profile
+              </h6>
+              <button type="button" class="btn btn-primary btn-sm" id="editProfileBtn">
+                <i class="bi bi-pencil me-1"></i> Edit
+              </button>
+            </div>
+
+            <div class="profile-display">
+              <div class="mb-4 text-center">
+                <div id="profilePictureDisplay" class="profile-picture-large mb-3">
+                  <i class="bi bi-person-fill"></i>
+                </div>
+                <p class="text-muted small">Profile Picture</p>
               </div>
 
-              <div class="profile-display">
-                <div class="mb-4 text-center">
-                  <div id="profilePictureDisplay" class="profile-picture-large mb-3">
-                    <i class="bi bi-person-fill"></i>
-                  </div>
-                  <p class="text-muted small">Profile Picture</p>
+              <div class="row">
+                <div class="col-md-6 mb-4">
+                  <label class="form-label">
+                    <i class="bi bi-person me-2"></i>Full Name
+                  </label>
+                  <p id="displayFullName" class="text-muted fw-500">Not provided</p>
                 </div>
+                <div class="col-md-6 mb-4">
+                  <label class="form-label">
+                    <i class="bi bi-telephone me-2"></i>Phone Number
+                  </label>
+                  <p id="displayPhoneNumber" class="text-muted fw-500">Not provided</p>
+                </div>
+              </div>
 
-                <div class="row">
-                  <div class="col-md-6 mb-3">
-                    <label class="form-label fw-bold">Full Name</label>
-                    <p id="displayFullName" class="text-muted">Not provided</p>
-                  </div>
-                  <div class="col-md-6 mb-3">
-                    <label class="form-label fw-bold">Phone Number</label>
-                    <p id="displayPhoneNumber" class="text-muted">Not provided</p>
-                  </div>
+              <div class="row">
+                <div class="col-md-6 mb-4">
+                  <label class="form-label">
+                    <i class="bi bi-building me-2"></i>Company
+                  </label>
+                  <p id="displayCompany" class="text-muted fw-500">Not provided</p>
                 </div>
+                <div class="col-md-6 mb-4">
+                  <label class="form-label">
+                    <i class="bi bi-envelope me-2"></i>Email
+                  </label>
+                  <p id="displayEmail" class="text-muted fw-500"></p>
+                </div>
+              </div>
 
-                <div class="row">
-                  <div class="col-md-6 mb-3">
-                    <label class="form-label fw-bold">Company</label>
-                    <p id="displayCompany" class="text-muted">Not provided</p>
-                  </div>
-                  <div class="col-md-6 mb-3">
-                    <label class="form-label fw-bold">Email</label>
-                    <p id="displayEmail" class="text-muted"></p>
-                  </div>
-                </div>
+              <div class="mb-4">
+                <label class="form-label">
+                  <i class="bi bi-pin-map me-2"></i>Address
+                </label>
+                <p id="displayAddress" class="text-muted fw-500">Not provided</p>
+              </div>
 
-                <div class="mb-3">
-                  <label class="form-label fw-bold">Address</label>
-                  <p id="displayAddress" class="text-muted">Not provided</p>
-                </div>
-
-                <div class="mb-3">
-                  <label class="form-label fw-bold">Bio</label>
-                  <p id="displayBio" class="text-muted">Not provided</p>
-                </div>
+              <div class="mb-0">
+                <label class="form-label">
+                  <i class="bi bi-chat-dots me-2"></i>Bio
+                </label>
+                <p id="displayBio" class="text-muted fw-500">Not provided</p>
               </div>
             </div>
           </div>
@@ -96,27 +116,33 @@
     <!-- Account Tab -->
     <div class="tab-pane fade" id="account" role="tabpanel">
       <div class="row">
-        <div class="col-md-6">
-          <div class="card">
-            <div class="card-body">
-              <h5 class="card-title">Account Information</h5>
-              <form id="accountForm">
-                <div class="mb-3">
-                  <label for="email" class="form-label">Email Address</label>
-                  <input type="email" class="form-control" id="email" disabled>
-                  <small class="text-muted">Email address cannot be changed</small>
-                </div>
-                <div class="mb-3">
-                  <label for="userId" class="form-label">User ID</label>
-                  <input type="text" class="form-control" id="userId" disabled>
-                  <small class="text-muted">Your unique user identifier</small>
-                </div>
-                <div class="mb-3">
-                  <label for="createdAt" class="form-label">Account Created</label>
-                  <input type="text" class="form-control" id="createdAt" disabled>
-                </div>
-              </form>
-            </div>
+        <div class="col-lg-8">
+          <div class="settings-section">
+            <h6 class="mb-4">
+              <i class="bi bi-shield-lock me-2"></i>Account Information
+            </h6>
+            <form id="accountForm">
+              <div class="settings-form-group">
+                <label for="email" class="form-label">
+                  <i class="bi bi-envelope me-2"></i>Email Address
+                </label>
+                <input type="email" class="form-control" id="email" disabled>
+                <small class="form-text">Email address cannot be changed</small>
+              </div>
+              <div class="settings-form-group">
+                <label for="userId" class="form-label">
+                  <i class="bi bi-key me-2"></i>User ID
+                </label>
+                <input type="text" class="form-control" id="userId" disabled>
+                <small class="form-text">Your unique user identifier</small>
+              </div>
+              <div class="settings-form-group mb-0">
+                <label for="createdAt" class="form-label">
+                  <i class="bi bi-calendar me-2"></i>Account Created
+                </label>
+                <input type="text" class="form-control" id="createdAt" disabled>
+              </div>
+            </form>
           </div>
         </div>
       </div>
@@ -125,27 +151,34 @@
     <!-- Password Tab -->
     <div class="tab-pane fade" id="password" role="tabpanel">
       <div class="row">
-        <div class="col-md-6">
-          <div class="card">
-            <div class="card-body">
-              <h5 class="card-title">Change Password</h5>
-              <form id="passwordForm">
-                <div class="mb-3">
-                  <label for="newPassword" class="form-label">New Password</label>
-                  <input type="password" class="form-control" id="newPassword" required minlength="6">
-                  <small class="text-muted">Minimum 6 characters</small>
-                </div>
-                <div class="mb-3">
-                  <label for="confirmPassword" class="form-label">Confirm Password</label>
-                  <input type="password" class="form-control" id="confirmPassword" required minlength="6">
-                </div>
-                <button type="submit" class="btn btn-primary" id="updatePasswordBtn">
-                  <span id="btnText">Update Password</span>
-                  <span id="spinner" class="spinner-border spinner-border-sm ms-2 d-none" role="status"
-                    aria-hidden="true"></span>
-                </button>
-              </form>
-            </div>
+        <div class="col-lg-8">
+          <div class="settings-section">
+            <h6 class="mb-4">
+              <i class="bi bi-lock me-2"></i>Change Password
+            </h6>
+            <form id="passwordForm">
+              <div class="settings-form-group">
+                <label for="newPassword" class="form-label">
+                  <i class="bi bi-shield-lock me-2"></i>New Password
+                </label>
+                <input type="password" class="form-control" id="newPassword" placeholder="Enter new password" required
+                  minlength="6">
+                <small class="form-text">Minimum 6 characters recommended</small>
+              </div>
+              <div class="settings-form-group">
+                <label for="confirmPassword" class="form-label">
+                  <i class="bi bi-check-circle me-2"></i>Confirm Password
+                </label>
+                <input type="password" class="form-control" id="confirmPassword" placeholder="Confirm new password"
+                  required minlength="6">
+              </div>
+              <button type="submit" class="btn btn-success" id="updatePasswordBtn">
+                <i class="bi bi-check-circle me-2"></i>
+                <span id="btnText">Update Password</span>
+                <span id="spinner" class="spinner-border spinner-border-sm ms-2 d-none" role="status"
+                  aria-hidden="true"></span>
+              </button>
+            </form>
           </div>
         </div>
       </div>
@@ -154,10 +187,12 @@
 
   <!-- Edit Profile Modal -->
   <div class="modal fade" id="editProfileModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title">Edit Profile</h5>
+          <h5 class="modal-title">
+            <i class="bi bi-pencil-square me-2"></i>Edit Your Profile
+          </h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
@@ -168,47 +203,62 @@
               </div>
               <div class="mb-2">
                 <input type="file" class="form-control" id="profilePictureInput" accept="image/*">
-                <small class="text-muted">JPG, PNG or GIF (Max 5MB)</small>
+                <small class="form-text">JPG, PNG or GIF (Max 5MB)</small>
               </div>
             </div>
 
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label for="fullName" class="form-label">Full Name</label>
+                <label for="fullName" class="form-label">
+                  <i class="bi bi-person me-1"></i>Full Name
+                </label>
                 <input type="text" class="form-control" id="fullName" placeholder="John Doe">
               </div>
               <div class="col-md-6 mb-3">
-                <label for="phoneNumber" class="form-label">Phone Number</label>
+                <label for="phoneNumber" class="form-label">
+                  <i class="bi bi-telephone me-1"></i>Phone Number
+                </label>
                 <input type="tel" class="form-control" id="phoneNumber" placeholder="+1 (555) 000-0000">
               </div>
             </div>
 
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label for="company" class="form-label">Company</label>
+                <label for="company" class="form-label">
+                  <i class="bi bi-building me-1"></i>Company
+                </label>
                 <input type="text" class="form-control" id="company" placeholder="Your Company">
               </div>
               <div class="col-md-6 mb-3">
-                <label for="emailModal" class="form-label">Email</label>
+                <label for="emailModal" class="form-label">
+                  <i class="bi bi-envelope me-1"></i>Email
+                </label>
                 <input type="email" class="form-control" id="emailModal" disabled>
-                <small class="text-muted">Email cannot be changed here</small>
+                <small class="form-text">Email cannot be changed here</small>
               </div>
             </div>
 
             <div class="mb-3">
-              <label for="address" class="form-label">Address</label>
+              <label for="address" class="form-label">
+                <i class="bi bi-pin-map me-1"></i>Address
+              </label>
               <input type="text" class="form-control" id="address" placeholder="Street address">
             </div>
 
-            <div class="mb-3">
-              <label for="bio" class="form-label">Bio / Additional Info</label>
+            <div class="mb-0">
+              <label for="bio" class="form-label">
+                <i class="bi bi-chat-dots me-1"></i>Bio / Additional Info
+              </label>
               <textarea class="form-control" id="bio" rows="3" placeholder="Tell us about yourself..."></textarea>
             </div>
           </form>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            <i class="bi bi-x me-2"></i>Cancel
+          </button>
           <button type="button" class="btn btn-primary" id="saveProfileBtn">
+            <i class="bi bi-check-circle me-2"></i>
             <span id="profileBtnText">Save Profile</span>
             <span id="profileSpinner" class="spinner-border spinner-border-sm ms-2 d-none" role="status"
               aria-hidden="true"></span>

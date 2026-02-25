@@ -58,22 +58,19 @@ export class IndexPage extends Page {
         return this.demoShortcuts
             .map(
                 shortcut => `
-        <div class="col-md-4 mb-4">
-          <div class="card demo-card h-100">
-            <div class="card-body">
-              <div class="d-flex justify-content-between align-items-start mb-3">
-                <i class="bi ${shortcut.icon} display-6 text-primary"></i>
-                <span class="badge bg-secondary">Demo</span>
-              </div>
-              <h5 class="card-title">${this.escapeHtml(shortcut.name)}</h5>
-              <p class="card-text text-muted text-truncate">${this.escapeHtml(shortcut.url)}</p>
-              <p class="card-text small">${this.escapeHtml(shortcut.description)}</p>
-              <button class="btn btn-sm btn-outline-secondary mt-2" disabled>
-                <i class="bi bi-lock"></i> Login to Open
-              </button>
-            </div>
-          </div>
-        </div>
+                <div class="col-md-4 mb-4">
+                    <div class="demo-card h-100">
+                        <div class="demo-card-icon">
+                            <i class="bi ${shortcut.icon}"></i>
+                        </div>
+                        <h5 class="demo-card-title">${this.escapeHtml(shortcut.name)}</h5>
+                        <p class="demo-card-text mb-2">${this.escapeHtml(shortcut.url)}</p>
+                        <p class="demo-card-text small text-muted">${this.escapeHtml(shortcut.description)}</p>
+                        <button class="btn btn-sm btn-outline-secondary mt-3" disabled>
+                            <i class="bi bi-lock-fill me-1"></i> Login to Open
+                        </button>
+                    </div>
+                </div>
       `
             )
             .join('')

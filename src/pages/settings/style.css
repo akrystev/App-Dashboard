@@ -1,28 +1,32 @@
 /* Settings Page Styles */
 .nav-tabs {
-    border-bottom: 2px solid #dee2e6;
+    border-bottom: 2px solid #e5e7eb;
     margin-bottom: clamp(1rem, 2.5vw, 1.5rem);
+    display: flex;
+    gap: 1rem;
 }
 
 .nav-tabs .nav-link {
     border: none;
-    color: #6c757d;
+    color: var(--text-secondary);
     border-bottom: 3px solid transparent;
-    transition: all 0.2s;
-    padding: clamp(0.5rem, 1.5vw, 0.75rem) clamp(1rem, 2vw, 1.5rem);
-    font-size: clamp(0.85rem, 1.5vw, 1rem);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: clamp(0.75rem, 1.5vw, 1rem) clamp(1rem, 2vw, 1.5rem);
+    font-size: clamp(0.9rem, 1.5vw, 1.05rem);
+    font-weight: 600;
+    position: relative;
 }
 
 .nav-tabs .nav-link:hover {
-    color: #0d6efd;
-    border-bottom-color: #0d6efd;
+    color: var(--primary-color);
+    border-bottom-color: var(--primary-color);
 }
 
 .nav-tabs .nav-link.active {
-    color: #0d6efd;
-    border-bottom-color: #0d6efd;
+    color: var(--primary-color);
+    border-bottom-color: var(--primary-color);
     background-color: transparent;
-    font-weight: 600;
+    font-weight: 700;
 }
 
 .tab-content {
@@ -32,26 +36,59 @@
 @keyframes fadeIn {
     from {
         opacity: 0;
+        transform: translateY(10px);
     }
 
     to {
         opacity: 1;
+        transform: translateY(0);
     }
 }
 
 /* Settings section */
 .settings-section {
-    padding: clamp(1rem, 3vw, 1.5rem);
-    margin-bottom: clamp(1rem, 2.5vw, 1.5rem);
+    padding: clamp(1.25rem, 3vw, 2rem);
+    margin-bottom: clamp(1.5rem, 3vw, 2rem);
+    background: white;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .settings-section-title {
-    font-size: clamp(1.1rem, 2.5vw, 1.35rem);
-    font-weight: 600;
-    margin-bottom: clamp(0.75rem, 2vw, 1rem);
+    font-size: clamp(1.15rem, 2.5vw, 1.5rem);
+    font-weight: 700;
+    margin-bottom: clamp(0.75rem, 2vw, 1.25rem);
+    color: var(--text-primary);
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #f3f4f6;
+}
+
+.settings-section-description {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    margin-bottom: 1.25rem;
 }
 
 /* Responsive form in settings */
 .settings-form-group {
-    margin-bottom: clamp(1rem, 2.5vw, 1.5rem);
+    margin-bottom: clamp(1.25rem, 2.5vw, 1.75rem);
+}
+
+.settings-form-group label {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.settings-form-group .form-control {
+    border: 1.5px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    transition: all 0.2s;
+}
+
+.settings-form-group .form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1);
 }

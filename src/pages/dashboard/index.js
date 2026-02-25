@@ -68,29 +68,27 @@ export class DashboardPage extends Page {
         return this.shortcuts
             .map(
                 shortcut => `
-                <div class="shortcut-item">
-          <div class="card shortcut-card h-100">
-            <div class="card-body">
-              <div class="d-flex justify-content-between align-items-start mb-3">
-                <i class="bi ${shortcut.icon || 'bi-link-45deg'} display-6 text-primary"></i>
-                <div class="btn-group btn-group-sm" role="group">
-                  <button class="btn btn-outline-secondary edit-shortcut-btn" data-id="${shortcut.id}">
-                    <i class="bi bi-pencil"></i>
-                  </button>
-                  <button class="btn btn-outline-danger delete-shortcut-btn" data-id="${shortcut.id}">
-                    <i class="bi bi-trash"></i>
-                  </button>
-                </div>
-              </div>
-              <h5 class="card-title">${this.escapeHtml(shortcut.name)}</h5>
-              <p class="card-text text-muted text-truncate">${this.escapeHtml(shortcut.url)}</p>
-              ${shortcut.description ? `<p class="card-text small">${this.escapeHtml(shortcut.description)}</p>` : ''}
-              <a href="${this.escapeHtml(shortcut.url)}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-primary mt-2">
-                <i class="bi bi-arrow-up-right"></i> Open
-              </a>
-            </div>
-          </div>
-        </div>
+                                <div class="shortcut-item">
+                                        <div class="shortcut-card h-100">
+                                                <div class="shortcut-icon">
+                                                        <i class="bi ${shortcut.icon || 'bi-link-45deg'}"></i>
+                                                </div>
+                                                <h5 class="shortcut-title">${this.escapeHtml(shortcut.name)}</h5>
+                                                <p class="shortcut-description">${this.escapeHtml(shortcut.url)}</p>
+                                                ${shortcut.description ? `<p class="shortcut-description small">${this.escapeHtml(shortcut.description)}</p>` : ''}
+                                                <div class="btn-group btn-group-sm mt-3" role="group">
+                                                        <button class="btn btn-outline-secondary edit-shortcut-btn" data-id="${shortcut.id}">
+                                                                <i class="bi bi-pencil"></i> Edit
+                                                        </button>
+                                                        <button class="btn btn-outline-danger delete-shortcut-btn" data-id="${shortcut.id}">
+                                                                <i class="bi bi-trash"></i> Delete
+                                                        </button>
+                                                        <a href="${this.escapeHtml(shortcut.url)}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">
+                                                                <i class="bi bi-arrow-up-right"></i> Open
+                                                        </a>
+                                                </div>
+                                        </div>
+                                </div>
       `
             )
             .join('')
