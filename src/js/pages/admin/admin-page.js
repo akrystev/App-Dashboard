@@ -57,14 +57,14 @@ export class AdminPage extends Page {
     await this.shortcutsManagement.loadShortcutVisibility()
 
     this.container.innerHTML = NavBar.createHTML(this.user, 'admin', 'admin') + `
-      <div class="container mt-5 mb-5">
+      <div class="container-fluid mt-4 mb-5 px-3 px-md-4">
         <!-- Header Section -->
-        <div class="row mb-5">
-          <div class="col">
+        <div class="row mb-4 g-3">
+          <div class="col-12\">
             <h1 class="mb-2">
               <i class="bi bi-shield-lock-fill text-primary"></i> Admin Panel
             </h1>
-            <p class="text-muted">Manage users and their shortcuts</p>
+            <p class="text-muted\">Manage users and their shortcuts</p>
           </div>
         </div>
 

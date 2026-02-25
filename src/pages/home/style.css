@@ -1,39 +1,55 @@
 /* Home Page Styles */
 .home-hero {
     background: linear-gradient(135deg, #f1f5ff 0%, #e9f6f1 50%, #fff4e6 100%);
-    padding: 4rem 0 3.5rem;
+    padding: clamp(2rem, 6vw, 4rem) clamp(1rem, 3vw, 2rem) clamp(1.75rem, 5vw, 3.5rem);
     border-bottom: 1px solid #e9ecef;
 }
 
 .home-hero-badge {
     display: inline-block;
-    padding: 0.35rem 0.9rem;
+    padding: clamp(0.25rem, 0.75vw, 0.35rem) clamp(0.6rem, 1.5vw, 0.9rem);
     border-radius: 999px;
     background: #212529;
     color: #fff;
-    font-size: 0.85rem;
+    font-size: clamp(0.7rem, 1.5vw, 0.85rem);
     letter-spacing: 0.04em;
     text-transform: uppercase;
-    margin-bottom: 1rem;
+    margin-bottom: clamp(0.75rem, 2vw, 1rem);
+    font-weight: 600;
 }
 
 .home-hero-title {
-    font-size: clamp(2.2rem, 3vw, 3rem);
-    margin-bottom: 0.5rem;
+    font-size: clamp(2rem, 5vw, 3rem);
+    margin-bottom: clamp(0.35rem, 1.5vw, 0.5rem);
+    font-weight: 700;
 }
 
 .home-hero-subtitle {
     color: #495057;
-    font-size: 1.1rem;
+    font-size: clamp(0.95rem, 2.5vw, 1.1rem);
+    font-weight: 400;
+    margin-bottom: clamp(1rem, 3vw, 1.5rem);
 }
 
 .demo-card {
     background: #ffffff;
     border: 1px solid #e9ecef;
     box-shadow: 0 6px 16px rgba(33, 37, 41, 0.08);
+    padding: clamp(1rem, 2.5vw, 1.5rem);
+    margin-bottom: clamp(1rem, 2.5vw, 1.5rem);
 }
 
 .demo-card:hover {
     transform: translateY(-4px);
     box-shadow: 0 10px 20px rgba(33, 37, 41, 0.12);
+}
+
+.demo-card-title {
+    font-size: clamp(1.1rem, 2.5vw, 1.35rem);
+    font-weight: 600;
+    margin-bottom: clamp(0.5rem, 1.5vw, 0.75rem);
+}
+
+.demo-card-text {
+    font-size: clamp(0.85rem, 1.5vw, 0.95rem);
 }

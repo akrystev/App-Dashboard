@@ -52,7 +52,7 @@ export class DashboardPage extends Page {
     renderShortcuts() {
         if (this.shortcuts.length === 0) {
             return `
-        <div class="col-12">
+        <div class="shortcut-empty">
           <div class="alert alert-info text-center py-5" role="alert">
             <i class="bi bi-inbox display-1 text-info d-block mb-3"></i>
             <h5>No shortcuts yet</h5>
@@ -68,7 +68,7 @@ export class DashboardPage extends Page {
         return this.shortcuts
             .map(
                 shortcut => `
-        <div class="col-md-4 mb-4">
+                <div class="shortcut-item">
           <div class="card shortcut-card h-100">
             <div class="card-body">
               <div class="d-flex justify-content-between align-items-start mb-3">

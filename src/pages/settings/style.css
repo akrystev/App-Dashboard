@@ -1,6 +1,7 @@
 /* Settings Page Styles */
 .nav-tabs {
     border-bottom: 2px solid #dee2e6;
+    margin-bottom: clamp(1rem, 2.5vw, 1.5rem);
 }
 
 .nav-tabs .nav-link {
@@ -8,6 +9,8 @@
     color: #6c757d;
     border-bottom: 3px solid transparent;
     transition: all 0.2s;
+    padding: clamp(0.5rem, 1.5vw, 0.75rem) clamp(1rem, 2vw, 1.5rem);
+    font-size: clamp(0.85rem, 1.5vw, 1rem);
 }
 
 .nav-tabs .nav-link:hover {
@@ -19,6 +22,7 @@
     color: #0d6efd;
     border-bottom-color: #0d6efd;
     background-color: transparent;
+    font-weight: 600;
 }
 
 .tab-content {
@@ -33,4 +37,21 @@
     to {
         opacity: 1;
     }
+}
+
+/* Settings section */
+.settings-section {
+    padding: clamp(1rem, 3vw, 1.5rem);
+    margin-bottom: clamp(1rem, 2.5vw, 1.5rem);
+}
+
+.settings-section-title {
+    font-size: clamp(1.1rem, 2.5vw, 1.35rem);
+    font-weight: 600;
+    margin-bottom: clamp(0.75rem, 2vw, 1rem);
+}
+
+/* Responsive form in settings */
+.settings-form-group {
+    margin-bottom: clamp(1rem, 2.5vw, 1.5rem);
 }
