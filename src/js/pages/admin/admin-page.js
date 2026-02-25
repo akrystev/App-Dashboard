@@ -267,25 +267,40 @@ export class AdminPage extends Page {
 
       if (error) throw error
 
-      // Load shortcut counts separately
+      // Load shortcut counts separately (owned + shared)
       let usersData = data || []
       if (usersData.length > 0) {
         const userIds = usersData.map(u => u.id)
-        const { data: shortcutCounts } = await supabase
-          .from('shortcuts')
-          .select('user_id')
-          .in('user_id', userIds)
+        const [shortcutsResult, visibilityResult] = await Promise.all([
+          supabase.from('shortcuts').select('id, user_id'),
+          supabase.from('shortcut_visibility').select('shortcut_id, user_id').in('user_id', userIds)
+        ])
 
-        const countMap = {}
-        if (shortcutCounts) {
-          shortcutCounts.forEach(s => {
-            countMap[s.user_id] = (countMap[s.user_id] || 0) + 1
-          })
-        }
+        if (shortcutsResult.error) throw shortcutsResult.error
+        if (visibilityResult.error) throw visibilityResult.error
+
+        const shortcutSets = new Map()
+        userIds.forEach(userId => shortcutSets.set(userId, new Set()))
+
+        const allShortcuts = shortcutsResult.data || []
+        allShortcuts.forEach(shortcut => {
+          const userSet = shortcutSets.get(shortcut.user_id)
+          if (userSet) {
+            userSet.add(shortcut.id)
+          }
+        })
+
+        const visibilityEntries = visibilityResult.data || []
+        visibilityEntries.forEach(entry => {
+          const userSet = shortcutSets.get(entry.user_id)
+          if (userSet) {
+            userSet.add(entry.shortcut_id)
+          }
+        })
 
         usersData = usersData.map(user => ({
           ...user,
-          shortcut_count: countMap[user.id] || 0
+          shortcut_count: shortcutSets.get(user.id)?.size || 0
         }))
       }
 
