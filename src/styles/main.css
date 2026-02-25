@@ -142,11 +142,12 @@ body {
     padding-left: clamp(0.75rem, 3vw, 2rem);
     margin-right: auto;
     margin-left: auto;
+    max-width: 1400px;
 }
 
 @media (min-width: 1920px) {
     .container-fluid {
-        max-width: 1800px;
+        max-width: 1600px;
     }
 }
 
@@ -410,6 +411,7 @@ p {
     margin-bottom: var(--spacing-lg);
     padding: var(--spacing-lg) 0;
     border-bottom: 2px solid var(--border-color);
+    margin-top: var(--spacing-md);
 }
 
 .dashboard-title {
@@ -438,6 +440,7 @@ p {
     flex-direction: column;
     background: white;
     cursor: pointer;
+    padding: clamp(1.25rem, 2vw, 1.5rem);
 }
 
 .shortcut-card::before {
@@ -508,17 +511,31 @@ p {
 
 #shortcutsContainer {
     display: grid !important;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: clamp(1rem, 2.5vw, 2rem);
-    width: 100%;
-    margin: 0 !important;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 320px));
+    gap: clamp(1.5rem, 2.5vw, 2rem);
+    margin: 2rem auto 0 auto !important;
     padding: 0 !important;
-    align-items: stretch;
-    justify-content: start;
+    width: max-content;
+    max-width: 100%;
+    justify-content: center;
+}
+
+@media (min-width: 1400px) {
+    #shortcutsContainer {
+        grid-template-columns: repeat(auto-fit, minmax(300px, 350px));
+    }
+}
+
+@media (max-width: 768px) {
+    #shortcutsContainer {
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        width: 100%;
+    }
 }
 
 .shortcut-item {
-    min-width: 0;
+    display: flex;
+    flex-direction: column;
 }
 
 .shortcut-empty {
