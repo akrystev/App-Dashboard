@@ -75,7 +75,7 @@
 
 ### Scenario 1: Admin Creates Shortcut
 ```
-Step 1: Login as admin@demo.com
+Step 1: Login with admin account
 Step 2: Navigate to Admin Panel → All Shortcuts
 Step 3: Click "Create Shortcut"
 Step 4: Enter:
@@ -91,15 +91,15 @@ Result: Shortcut appears in table, success message shown
 ```
 Step 1: From Admin Panel, click manage access icon (👥) on shortcut
 Step 2: Modal opens showing all users with checkboxes
-Step 3: Check boxes for: demo@demo.com, user2@example.com
-Step 4: Uncheck: user3@example.com (revoke access)
+Step 3: Check boxes for desired users
+Step 4: Uncheck users to revoke access
 Step 5: Click "Save Changes"
 Result: Badge updates showing "2 users", modal closes
 ```
 
 ### Scenario 3: User Sees Shared Shortcut
 ```
-Step 1: Login as demo@demo.com
+Step 1: Login with regular user account
 Step 2: Go to Dashboard
 Step 3: View shortcuts grid
 Result: 
@@ -232,7 +232,7 @@ All requirements have been fully implemented and tested:
 For deployment:
 1. Apply migrations to Supabase database
 2. Deploy application code
-3. Test with demo credentials (admin@demo.com / admin123)
+3. Test with your demo accounts
 
 For troubleshooting:
 - Check migration status in Supabase

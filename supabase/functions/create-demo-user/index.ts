@@ -15,13 +15,25 @@ Deno.serve(async (req) => {
     }
 
     try {
-        // Create demo user
+        // Get email and password from request body
+        const { email, password } = await req.json()
+
+        if (!email || !password) {
+            return new Response(
+                JSON.stringify({ error: 'Email and password are required' }),
+                {
+                    status: 400,
+                    headers: { 'Content-Type': 'application/json' }
+                }
+            )
+        }
+
+        // Create user
         const { data, error } = await supabase.auth.admin.createUser({
-            email: 'demo@demo.com',
-            password: 'demo123',
+            email,
+            password,
             email_confirm: true,
             user_metadata: {
-                username: 'demo',
                 role: 'user'
             }
         })
@@ -31,9 +43,8 @@ Deno.serve(async (req) => {
             if (error.message.includes('already exists')) {
                 return new Response(
                     JSON.stringify({
-                        message: 'Demo account already exists',
-                        email: 'demo@demo.com',
-                        password: 'demo123'
+                        message: 'User account already exists',
+                        email
                     }),
                     {
                         status: 200,
@@ -46,9 +57,8 @@ Deno.serve(async (req) => {
 
         return new Response(
             JSON.stringify({
-                message: 'Demo account created successfully',
-                email: 'demo@demo.com',
-                password: 'demo123',
+                message: 'User account created successfully',
+                email,
                 user_id: data.user.id
             }),
             {

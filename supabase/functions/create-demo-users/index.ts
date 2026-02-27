@@ -15,100 +15,103 @@ Deno.serve(async (req) => {
     }
 
     try {
-        const results = []
+        // Get user accounts from request body
+        const { users } = await req.json()
 
-        // Create demo user
-        const { data: demoData, error: demoError } = await supabase.auth.admin.createUser({
-            email: 'demo@demo.com',
-            password: 'demo123',
-            email_confirm: true,
-            user_metadata: {
-                username: 'demo',
-                role: 'user'
-            }
-        })
-
-        if (demoError) {
-            if (demoError.message.includes('already exists')) {
-                results.push({ user: 'demo@demo.com', status: 'already exists' })
-            } else {
-                results.push({ user: 'demo@demo.com', status: 'error', error: demoError.message })
-            }
-        } else {
-            // Create user record in users table
-            await supabase.from('users').upsert({
-                id: demoData.user.id,
-                email: 'demo@demo.com',
-                role: 'user',
-                status: 'active'
-            }, { onConflict: 'id' })
-
-            results.push({ user: 'demo@demo.com', status: 'created' })
+        if (!users || !Array.isArray(users) || users.length === 0) {
+            return new Response(
+                JSON.stringify({
+                    error: 'Pass array of users to create. Example: {"users": [{"email": "test@example.com", "password": "SecurePass123", "role": "admin"}]}'
+                }),
+                {
+                    status: 400,
+                    headers: { 'Content-Type': 'application/json' }
+                }
+            )
         }
 
-        // Create admin user
-        const { data: adminData, error: adminError } = await supabase.auth.admin.createUser({
-            email: 'admin@demo.com',
-            password: 'admin123',
-            email_confirm: true,
-            user_metadata: {
-                username: 'admin',
-                role: 'admin'
+        const results = []
+
+        // Create each user
+        for (const userConfig of users) {
+            const { email, password, role = 'user' } = userConfig
+
+            if (!email || !password) {
+                results.push({
+                    email,
+                    status: 'error',
+                    error: 'Email and password are required'
+                })
+                continue
             }
-        })
 
-        if (adminError) {
-            if (adminError.message.includes('already exists')) {
-                results.push({ user: 'admin@demo.com', status: 'already exists' })
+            // Create user
+            const { data: userData, error: userError } = await supabase.auth.admin.createUser({
+                email,
+                password,
+                email_confirm: true,
+                user_metadata: {
+                    role
+                }
+            })
 
-                // Still try to update existing admin user
-                const { data: existingUsers } = await supabase
-                    .from('users')
-                    .select('id')
-                    .eq('email', 'admin@demo.com')
-                    .single()
+            if (userError) {
+                if (userError.message.includes('already exists')) {
+                    results.push({ email, status: 'already exists' })
 
-                if (existingUsers) {
-                    await supabase.from('users').update({
-                        role: 'admin',
-                        status: 'active'
-                    }).eq('id', existingUsers.id)
+                    // Still try to update existing user if role is admin
+                    if (role === 'admin') {
+                        const { data: existingUsers } = await supabase
+                            .from('users')
+                            .select('id')
+                            .eq('email', email)
+                            .single()
 
-                    await supabase.from('user_roles').upsert({
-                        user_id: existingUsers.id,
-                        role: 'admin'
-                    }, { onConflict: 'user_id,role' })
+                        if (existingUsers) {
+                            await supabase.from('users').update({
+                                role: 'admin',
+                                status: 'active'
+                            }).eq('id', existingUsers.id)
+
+                            await supabase.from('user_roles').upsert({
+                                user_id: existingUsers.id,
+                                role: 'admin'
+                            }, { onConflict: 'user_id,role' })
+                        }
+                    }
+                } else {
+                    results.push({
+                        email,
+                        status: 'error',
+                        error: userError.message
+                    })
                 }
             } else {
-                results.push({ user: 'admin@demo.com', status: 'error', error: adminError.message })
+                // Create user record in users table
+                await supabase.from('users').upsert({
+                    id: userData.user.id,
+                    email,
+                    role,
+                    status: 'active'
+                }, { onConflict: 'id' })
+
+                // If admin role, add to user_roles
+                if (role === 'admin') {
+                    await supabase.from('user_roles').upsert({
+                        user_id: userData.user.id,
+                        role: 'admin',
+                        assigned_at: new Date().toISOString()
+                    }, { onConflict: 'user_id,role' })
+                }
+
+                results.push({ email, status: 'created', role })
             }
-        } else {
-            // Create admin user record in users table
-            await supabase.from('users').upsert({
-                id: adminData.user.id,
-                email: 'admin@demo.com',
-                role: 'admin',
-                status: 'active'
-            }, { onConflict: 'id' })
-
-            // Create admin role in user_roles table
-            await supabase.from('user_roles').upsert({
-                user_id: adminData.user.id,
-                role: 'admin',
-                assigned_at: new Date().toISOString()
-            }, { onConflict: 'user_id,role' })
-
-            results.push({ user: 'admin@demo.com', status: 'created' })
         }
 
         return new Response(
             JSON.stringify({
-                message: 'Demo accounts setup completed',
-                results,
-                credentials: [
-                    { email: 'demo@demo.com', password: 'demo123', role: 'user' },
-                    { email: 'admin@demo.com', password: 'admin123', role: 'admin' }
-                ]
+                message: 'User account creation completed',
+                results
             }),
             {
                 status: 200,

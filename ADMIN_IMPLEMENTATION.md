@@ -69,10 +69,9 @@ A complete admin panel with:
 
 #### Demo User Edge Function
 - **File**: `supabase/functions/create-demo-users/index.ts`
-- Creates two demo accounts:
-  - Regular user: demo@demo.com / demo123
-  - Admin user: admin@demo.com / admin123
+- Creates demo accounts via POST request
 - Automatically sets up roles in both `users` and `user_roles` tables
+- Parameters can be passed in request body
 
 #### Admin Setup Script
 - **File**: `supabase/scripts/make_user_admin.sql`
@@ -121,9 +120,8 @@ A complete admin panel with:
    npm run dev
    ```
 
-2. **Login with admin account**:
-   - Email: admin@demo.com
-   - Password: admin123
+2. **Login with your admin account**:
+   - Use your admin credentials created during setup
 
 3. **Access admin panel**:
    - Click "Admin Panel" in the navigation bar

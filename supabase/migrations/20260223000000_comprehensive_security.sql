@@ -191,40 +191,12 @@ USING (is_admin_user(auth.uid()));
 
 -- Note: Passwords are changed using crypt() for security
 -- New passwords:
--- demo@demo.com -> Demo2026Secure!
--- admin@demo.com -> Admin2026Secure!
+-- Demo user setup would go here
+-- Use the create-demo-users edge function to set up test accounts
 
-DO $$
-DECLARE
-    demo_user_id UUID;
-    admin_user_id UUID;
-BEGIN
-    -- Get user IDs
-    SELECT id INTO demo_user_id FROM auth.users WHERE email = 'demo@demo.com';
-    SELECT id INTO admin_user_id FROM auth.users WHERE email = 'admin@demo.com';
-    
-    -- Update demo user password
-    IF demo_user_id IS NOT NULL THEN
-        UPDATE auth.users 
-        SET encrypted_password = crypt('Demo2026Secure!', gen_salt('bf')),
-            updated_at = now()
-        WHERE id = demo_user_id;
-        RAISE NOTICE 'Updated password for demo@demo.com';
-    ELSE
-        RAISE NOTICE 'User demo@demo.com not found';
-    END IF;
-    
-    -- Update admin user password
-    IF admin_user_id IS NOT NULL THEN
-        UPDATE auth.users 
-        SET encrypted_password = crypt('Admin2026Secure!', gen_salt('bf')),
-            updated_at = now()
-        WHERE id = admin_user_id;
-        RAISE NOTICE 'Updated password for admin@demo.com';
-    ELSE
-        RAISE NOTICE 'User admin@demo.com not found';
-    END IF;
-END $$;
+-- Demo user setup would go here
+-- Use the create-demo-users edge function to set up test accounts with your own credentials
+-- Do not hardcode passwords in migration files for security reasons
 
 -- ============================================================================
 -- PART 7: Add Security Functions
@@ -315,7 +287,6 @@ END $$;
 RAISE NOTICE '====================================================';
 RAISE NOTICE 'Security migration completed successfully!';
 RAISE NOTICE '====================================================';
-RAISE NOTICE 'New demo credentials:';
-RAISE NOTICE '  demo@demo.com / Demo2026Secure!';
-RAISE NOTICE '  admin@demo.com / Admin2026Secure!';
+RAISE NOTICE 'Demo accounts can be created using the edge function';
+RAISE NOTICE 'with your own secure credentials.';
 RAISE NOTICE '====================================================';

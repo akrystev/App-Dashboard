@@ -7,9 +7,7 @@ If you have deployed the `create-demo-users` edge function to Supabase:
 1. Go to your Supabase project dashboard
 2. Navigate to **Edge Functions**
 3. Find and invoke `create-demo-users`
-4. This will create both accounts:
-   - **Regular User**: demo@demo.com / Demo2026Secure!
-   - **Admin User**: admin@demo.com / Admin2026Secure!
+4. This will create test accounts that you can use for testing
 
 ## Option 2: Using SQL Editor in Supabase Dashboard
 
@@ -122,9 +120,9 @@ After creating an admin user, verify by:
 
 ## Demo Accounts
 
-For testing purposes, use these pre-configured accounts:
+For testing purposes, you should create your own test accounts:
 
-- **Regular User**: demo@demo.com / Demo2026Secure!
-- **Admin User**: admin@demo.com / Admin2026Secure!
+- **Regular User**: Create via the registration page at `/register`
+- **Admin User**: Create an account and then promote it to admin using the SQL scripts above
 
-(Note: These accounts need to be created first using the edge function or SQL)
+(Note: Demo credentials should never be hardcoded in the application)

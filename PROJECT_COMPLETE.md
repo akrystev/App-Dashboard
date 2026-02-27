@@ -82,7 +82,7 @@ Regular users now see:
 
 ### For Administrators
 ```
-1. Login: admin@demo.com / admin123
+1. Login with your admin account
 2. Admin Panel → All Shortcuts
 3. Create new shortcuts:
    - Click "Create Shortcut" (green button)
@@ -95,7 +95,7 @@ Regular users now see:
 
 ### For Regular Users
 ```
-1. Login: demo@demo.com / demo123
+1. Login with your user account
 2. View Dashboard
 3. See both:
    - Own shortcuts

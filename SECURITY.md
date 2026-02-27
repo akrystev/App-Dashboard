@@ -28,21 +28,22 @@ All database tables have **Row-Level Security (RLS) enabled**:
 
 ### Demo Credentials
 
+Create your own test accounts from scratch:
+
 **Regular User:**
-- Email: `demo@demo.com`
-- Password: `Demo2026Secure!`
+- Signup at `/register` with your test email
 - Role: `user`
 
 **Admin User:**
-- Email: `admin@demo.com`
-- Password: `Admin2026Secure!`
+- Create account, then promote using SQL scripts
 - Role: `admin`
 
-> ⚠️ **Important**: These credentials are for demonstration purposes only. In production:
+> ⚠️ **Important**: Security best practices:
 > - Use strong, unique passwords for all accounts
 > - Enable Multi-Factor Authentication (MFA)
-> - Change default credentials immediately
+> - Never hardcode credentials in source code
 > - Regularly rotate passwords
+> - Use environment variables for any configuration
 
 ### User Roles
 
@@ -385,9 +386,9 @@ If you discover a security vulnerability:
 3. ✓ Added security helper functions
 4. ✓ Verified RLS configuration
 
-**New Credentials:**
-- demo@demo.com → Demo2026Secure!
-- admin@demo.com → Admin2026Secure!
+**New Test Accounts:**
+- Create regular user account via registration
+- Create admin account and promote via SQL
 
 ---
 

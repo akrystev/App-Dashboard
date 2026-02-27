@@ -89,19 +89,19 @@ The application will open at `http://localhost:5173`
 
 ### Demo Accounts
 
-Demo accounts are available for testing:
+To test the application, create your own demo accounts:
 
 **Regular User:**
-- **Email**: demo@demo.com
-- **Password**: Demo2026Secure!
+- Create a new account via the registration page
+- Role: `user`
 
 **Admin User:**
-- **Email**: admin@demo.com
-- **Password**: Admin2026Secure!
+- Create an account, then promote it to admin using the SQL scripts
+- Role: `admin`
 
-Use these credentials to login and test the dashboard functionality without creating a new account. The admin account has access to the Admin Panel for managing all users and shortcuts.
+Refer to the setup guide for instructions on creating and promoting an admin user.
 
-> **Security Note**: These are demo/test credentials. In production, use strong unique passwords and enable MFA.
+> **Security Note**: Never hardcode credentials. Always use strong unique passwords and enable MFA.
 
 ### Building for Production
 

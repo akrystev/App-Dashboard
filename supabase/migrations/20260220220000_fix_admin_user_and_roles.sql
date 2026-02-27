@@ -1,14 +1,15 @@
 -- Fix missing user records and user_roles
 -- This migration:
--- 1. Adds admin@demo.com to users table as admin
--- 2. Adds missing user_roles records for both users
--- 3. Ensures demo@demo.com is a regular user
+-- 1. Sets up admin user to users table as admin
+-- 2. Adds missing user_roles records for users
+-- 3. Ensures regular users are properly configured
 
--- Add admin@demo.com to users table (if not exists)
+-- Add admin user to users table (if not exists)
+-- Replace with your actual admin user ID and email
 INSERT INTO users (id, email, role, status, created_at, updated_at)
 VALUES (
     '784feab0-f863-4cbb-ad84-5b7c7d93f0e3'::uuid, 
-    'admin@demo.com', 
+    'your-admin-email@example.com', 
     'admin', 
     'active',
     timezone('UTC'::text, now()),
@@ -20,11 +21,12 @@ DO UPDATE SET
     status = 'active',
     updated_at = timezone('UTC'::text, now());
 
--- Ensure demo@demo.com is in users table with user role
+-- Ensure regular user is in users table with user role
+-- Replace with your actual user ID and email
 INSERT INTO users (id, email, role, status, created_at, updated_at)
 VALUES (
     '2100e6c2-fe86-4ea4-ba18-8ccb4dd9799a'::uuid,
-    'demo@demo.com',
+    'your-user-email@example.com',
     'user',
     'active',
     timezone('UTC'::text, now()),
@@ -36,7 +38,7 @@ DO UPDATE SET
     status = 'active',
     updated_at = timezone('UTC'::text, now());
 
--- Add user_roles record for admin@demo.com
+-- Add user_roles record for admin user
 INSERT INTO user_roles (user_id, role, assigned_at)
 VALUES (
     '784feab0-f863-4cbb-ad84-5b7c7d93f0e3'::uuid,
@@ -46,7 +48,7 @@ VALUES (
 ON CONFLICT (user_id, role)
 DO UPDATE SET assigned_at = timezone('UTC'::text, now());
 
--- Add user_roles record for demo@demo.com (regular user)
+-- Add user_roles record for regular user
 INSERT INTO user_roles (user_id, role, assigned_at)
 VALUES (
     '2100e6c2-fe86-4ea4-ba18-8ccb4dd9799a'::uuid,
@@ -60,8 +62,8 @@ DO UPDATE SET assigned_at = timezone('UTC'::text, now());
 DO $$
 BEGIN
     RAISE NOTICE '=== User Setup Complete ===';
-    RAISE NOTICE 'Admin User: admin@demo.com (password: admin123)';
-    RAISE NOTICE 'Demo User: demo@demo.com (password: demo123)';
+    RAISE NOTICE 'Admin user and demo user have been configured';
+    RAISE NOTICE 'Use your own credentials to access the system.';
     RAISE NOTICE '';
 END $$;
 

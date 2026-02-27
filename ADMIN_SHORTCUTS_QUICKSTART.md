@@ -5,8 +5,7 @@
 ### Creating a Shortcut (Admin Only)
 
 1. **Login as Admin**
-   - Email: `admin@demo.com`
-   - Password: `Admin2026Secure!`
+   - Use your admin account credentials
 
 2. **Navigate to Admin Panel**
    - Click "Admin Panel" in the navbar
@@ -64,14 +63,14 @@
 ## 📊 Example Scenario
 
 ### Setup
-- 1 Admin: `admin@demo.com`
-- 2 Users: `demo@demo.com`, `user2@example.com`
+- 1 Admin: Your admin account
+- 2 Users: Two regular user accounts
 
 ### Workflow
 ```
 Admin creates: Confluence Shortcut → https://confluence.company.com
 Admin opens Manage Access modal
-Admin checks users: ✓ demo@demo.com, ✓ user2@example.com
+Admin checks users: ✓ User 1, ✓ User 2
 Admin clicks Save
 
 Result:

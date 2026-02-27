@@ -2,23 +2,22 @@
 -- This script promotes an existing user to admin role
 -- 
 -- STEP 1: First, register the user through your app at /register
---         Email: admin@demo.com
---         Password: admin123
 --
 -- STEP 2: Then run this SQL script to promote them to admin
+-- Replace 'your-email@example.com' with the actual email
 
--- Promote admin@demo.com to admin role
+-- Promote your chosen user to admin role
 UPDATE users 
 SET role = 'admin', 
     status = 'active',
     updated_at = timezone('UTC'::text, now())
-WHERE email = 'admin@demo.com';
+WHERE email = 'your-email@example.com';
 
 -- Add admin role to user_roles table
 INSERT INTO user_roles (user_id, role, assigned_at)
 SELECT id, 'admin'::user_role, timezone('UTC'::text, now())
 FROM users
-WHERE email = 'admin@demo.com'
+WHERE email = 'your-email@example.com'
 ON CONFLICT (user_id, role) 
 DO UPDATE SET assigned_at = timezone('UTC'::text, now());
 
@@ -32,4 +31,4 @@ SELECT
     ur.assigned_at
 FROM users u
 LEFT JOIN user_roles ur ON ur.user_id = u.id AND ur.role = 'admin'
-WHERE u.email = 'admin@demo.com';
+WHERE u.email = 'your-email@example.com';
