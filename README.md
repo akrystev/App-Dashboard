@@ -1,59 +1,77 @@
 # App Dashboard
 
-A web application that serves as a central hub for app shortcuts and dashboard management. Users can register, login, and create shortcuts to local network or public URLs.
+A multi-page web app that provides a personal shortcuts dashboard. Users register and manage their own shortcuts (local network or public URLs). Admins manage users and can remove inappropriate shortcuts. Authentication, database, and file storage are powered by Supabase.
 
 ## Features
 
-- User registration and authentication via Supabase Auth
-- Multi-page application with clean routing
-- Bootstrap-based responsive UI
-- **Admin panel for user management** ✅
-- **Shortcut management system** ✅
-- **User roles (admin/user)** ✅
-- Supabase integration for database, auth, and storage
+- User registration, login, logout (Supabase Auth)
+- Personal dashboard with shortcut CRUD
+- Admin panel for user and shortcut moderation
+- Role-based access (admin/user) with RLS policies
+- Supabase Storage support for user files (icons, images)
+- Vite-powered build and Bootstrap UI
 
-## Tech Stack
+## Architecture
 
-- **Frontend**: HTML, CSS, JavaScript, Vite
-- **UI Framework**: Bootstrap 5
-- **Backend**: Supabase (Database, Auth, Storage)
-- **Icons**: Bootstrap Icons
+- Frontend: HTML, CSS, JavaScript, Vite, Bootstrap 5
+- Backend: Supabase (Postgres database, Auth, Storage, Edge Functions)
+- Auth: Supabase Auth with role checks via `user_roles`
+- Hosting: Netlify (see `netlify.toml`)
 
-## Project Structure
+## Database Schema (High Level)
 
+```mermaid
+erDiagram
+   auth_users {
+      uuid id PK
+      text email
+   }
+
+   user_profiles {
+      uuid user_id PK
+      text display_name
+      text avatar_url
+      timestamptz created_at
+   }
+
+   user_roles {
+      uuid user_id
+      app_role role
+      timestamptz assigned_at
+   }
+
+   shortcuts {
+      uuid id PK
+      uuid owner_id
+      text title
+      text url
+      text icon_url
+      text visibility
+      timestamptz created_at
+   }
+
+   auth_users ||--|| user_profiles : has
+   auth_users ||--o{ user_roles : assigned
+   auth_users ||--o{ shortcuts : owns
 ```
-src/
-├── js/
-│   ├── main.js              # Application entry point
-│   ├── router.js            # Client-side routing
-│   ├── pages/
-│   │   ├── page.js          # Base page class
-│   │   ├── index-page.js    # Home page
-│   │   └── dashboard-page.js # Dashboard page
-│   └── services/
-│       └── supabase.js      # Supabase configuration and helpers
-├── styles/
-│   └── main.css             # Global styles
-└── assets/                  # Images, icons, etc.
 
-index.html                   # HTML entry point
-vite.config.js              # Vite configuration
-package.json                # Dependencies and scripts
-```
+Notes:
+- `app_role` is an enum with values `user` and `admin`.
+- RLS policies restrict edit access to owners and admins.
 
-## Getting Started
+## Local Development Setup
 
 ### Prerequisites
 
 - Node.js 16+ and npm
-- Supabase project account
+- Supabase project (URL + Anon Key)
 
-### Installation
+### Install
 
 1. Clone the repository:
 ```bash
 git clone <repository-url>
-cd app-dashboard
+cd App-Dashboard
 ```
 
 2. Install dependencies:
@@ -61,152 +79,73 @@ cd app-dashboard
 npm install
 ```
 
-3. Set up environment variables:
+3. Create local env file and set Supabase keys:
 ```bash
 cp .env.example .env.local
 ```
 
-4. Edit `.env.local` with your Supabase credentials:
 ```
 VITE_SUPABASE_URL=your_supabase_project_url
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
 
-5. (Optional) Set up VS Code MCP configuration:
-```bash
-cp .vscode/mcp.json.example .vscode/mcp.json
-```
-Then edit `.vscode/mcp.json` with your Supabase project reference.
-
-### Development
-
-Start the development server:
+4. Start the dev server:
 ```bash
 npm run dev
 ```
 
-The application will open at `http://localhost:5173`
+Open `http://localhost:5173`.
 
-### Demo Accounts
+### Demo Accounts (No Hardcoded Credentials)
 
-To test the application, create your own demo accounts:
+- Register a user via the UI.
+- Promote a user to admin using the provided SQL scripts in `supabase/scripts/`.
 
-**Regular User:**
-- Create a new account via the registration page
-- Role: `user`
+## Key Folders and Files
 
-**Admin User:**
-- Create an account, then promote it to admin using the SQL scripts
-- Role: `admin`
+```
+src/
+   js/
+      main.js                    # App bootstrap
+      router.js                  # Page routing
+      components/                # Shared UI components
+      pages/admin/               # Admin page logic
+      services/supabase.js       # Supabase client
+   pages/
+      home/                      # Home screen
+      login/                     # Login screen
+      register/                  # Registration screen
+      dashboard/                 # User dashboard
+      settings/                  # Profile/settings
+      admin/                     # Admin panel UI
+   styles/main.css              # Global styles
 
-Refer to the setup guide for instructions on creating and promoting an admin user.
+supabase/
+   migrations/                  # DB migrations (RLS, roles, policies)
+   functions/                   # Edge Functions (demo user helpers)
+   scripts/                     # Admin setup SQL scripts
 
-> **Security Note**: Never hardcode credentials. Always use strong unique passwords and enable MFA.
-
-### Building for Production
-
-Build the application:
-```bash
-npm run build
+index.html                     # Vite entry
+netlify.toml                   # Netlify build config
+vite.config.js                 # Vite config
 ```
 
-Preview the production build:
-```bash
-npm run preview
-```
+## Pages and Routes
 
-## Deployment to Netlify
-
-### Prerequisites
-- A Netlify account
-- Your Supabase URL and Anon Key
-
-### Deploy Steps
-
-1. **Push your code to GitHub** (if not already done):
-```bash
-git add .
-git commit -m "Ready for deployment"
-git push origin main
-```
-
-2. **Connect to Netlify**:
-   - Go to [Netlify](https://netlify.com)
-   - Click "Add new site" → "Import an existing project"
-   - Connect your GitHub repository
-
-3. **Configure Build Settings**:
-   - Build command: `npm run build`
-   - Publish directory: `dist`
-   - (These are auto-detected from `netlify.toml`)
-
-4. **Set Environment Variables** (CRITICAL):
-   - Go to Site settings → Environment variables
-   - Add the following variables:
-     - `VITE_SUPABASE_URL` = your Supabase project URL
-     - `VITE_SUPABASE_ANON_KEY` = your Supabase anon key
-
-5. **Deploy**:
-   - Click "Deploy site"
-   - Wait for the build to complete
-
-6. **Verify**:
-   - Open your Netlify URL
-   - Check the browser console for any errors
-   - Test registration and login
-
-### Troubleshooting
-
-**White screen or blank page:**
-- Check that environment variables are set correctly in Netlify
-- Verify the `netlify.toml` file is in the repository root
-- Check the browser console for errors
-- Ensure Supabase RLS policies are correctly configured
-
-**Authentication not working:**
-- Add your Netlify domain to Supabase Auth → URL Configuration → Site URL
-- Add your Netlify domain to Redirect URLs in Supabase Auth settings
-
-## Pages
-- `/dashboard` - User dashboard for managing shortcuts
-- `/settings` - User settings and profile management
-- `/admin` - Admin panel for user and shortcut management (admin only)
-
-## Admin Panel
-
-The admin panel is accessible only to users with the `admin` role. Features include:
-
-- **User Management**: View all users, edit user status (active/blocked/suspended), assign roles
-- **Shortcut Management**: View and delete shortcuts from all users
-- **Statistics**: Overview of users and shortcuts
-
-### Making a User Admin
-
-To promote a user to admin, run the SQL script in `supabase/scripts/make_user_admin.sql`:
-
-```sql
--- Replace YOUR_USER_EMAIL with the actual email
-UPDATE users 
-SET role = 'admin', updated_at = timezone('UTC'::text, now())
-WHERE email = 'YOUR_USER_EMAIL';
-
-INSERT INTO user_roles (user_id, role, assigned_at)
-SELECT id, 'admin', timezone('UTC'::text, now())
-FROM users
-WHERE email = 'YOUR_USER_EMAIL'
-ON CONFLICT (user_id, role) 
-DO UPDATE SET assigned_at = timezone('UTC'::text, now());
-```
-
-## Future Pages
-
-- `/dashboard` - User dashboard for managing shortcuts
-
-## Future Pages
-
-- `/register` - User registration
-- `/admin` - Admin panel for user management
+- `/` - Home
+- `/login` - Login
+- `/register` - Register
+- `/dashboard` - User dashboard
 - `/settings` - User settings
+- `/admin` - Admin panel
+
+## Deployment (Netlify)
+
+1. Build command: `npm run build`
+2. Publish directory: `dist`
+3. Set env vars in Netlify:
+    - `VITE_SUPABASE_URL`
+    - `VITE_SUPABASE_ANON_KEY`
 
 ## Contributing
 
