@@ -114,7 +114,60 @@ Preview the production build:
 ```bash
 npm run preview
 ```
-register` - User registration
+
+## Deployment to Netlify
+
+### Prerequisites
+- A Netlify account
+- Your Supabase URL and Anon Key
+
+### Deploy Steps
+
+1. **Push your code to GitHub** (if not already done):
+```bash
+git add .
+git commit -m "Ready for deployment"
+git push origin main
+```
+
+2. **Connect to Netlify**:
+   - Go to [Netlify](https://netlify.com)
+   - Click "Add new site" → "Import an existing project"
+   - Connect your GitHub repository
+
+3. **Configure Build Settings**:
+   - Build command: `npm run build`
+   - Publish directory: `dist`
+   - (These are auto-detected from `netlify.toml`)
+
+4. **Set Environment Variables** (CRITICAL):
+   - Go to Site settings → Environment variables
+   - Add the following variables:
+     - `VITE_SUPABASE_URL` = your Supabase project URL
+     - `VITE_SUPABASE_ANON_KEY` = your Supabase anon key
+
+5. **Deploy**:
+   - Click "Deploy site"
+   - Wait for the build to complete
+
+6. **Verify**:
+   - Open your Netlify URL
+   - Check the browser console for any errors
+   - Test registration and login
+
+### Troubleshooting
+
+**White screen or blank page:**
+- Check that environment variables are set correctly in Netlify
+- Verify the `netlify.toml` file is in the repository root
+- Check the browser console for errors
+- Ensure Supabase RLS policies are correctly configured
+
+**Authentication not working:**
+- Add your Netlify domain to Supabase Auth → URL Configuration → Site URL
+- Add your Netlify domain to Redirect URLs in Supabase Auth settings
+
+## Pages
 - `/dashboard` - User dashboard for managing shortcuts
 - `/settings` - User settings and profile management
 - `/admin` - Admin panel for user and shortcut management (admin only)
