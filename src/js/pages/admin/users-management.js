@@ -1,4 +1,5 @@
 // Admin Users Management
+/* global bootstrap */
 import { supabase } from '../../services/supabase.js'
 
 export class UsersManagement {
@@ -119,7 +120,6 @@ export class UsersManagement {
     }
 
     async createUser() {
-        const form = this.container.querySelector('#createUserForm')
         const email = this.container.querySelector('#newUserEmail')?.value?.trim()
         const password = this.container.querySelector('#newUserPassword')?.value?.trim()
         const repeatPassword = this.container.querySelector('#newUserRepeatPassword')?.value?.trim()

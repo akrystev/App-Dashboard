@@ -1,4 +1,5 @@
 // Settings Page
+/* global bootstrap */
 import { Page } from '../page.js'
 import { auth, supabase, getUserRole } from '../../js/services/supabase.js'
 import { NavBar } from '../../js/components/navbar.js'
