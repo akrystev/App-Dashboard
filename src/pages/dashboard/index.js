@@ -67,7 +67,9 @@ export class DashboardPage extends Page {
 
         return this.shortcuts
             .map(
-                shortcut => `
+                shortcut => {
+                    const isOwner = shortcut.user_id === this.user.id
+                    return `
                                 <div class="shortcut-item">
                                         <div class="shortcut-card h-100">
                                                 <div class="shortcut-icon">
@@ -76,13 +78,16 @@ export class DashboardPage extends Page {
                                                 <h5 class="shortcut-title">${this.escapeHtml(shortcut.name)}</h5>
                                                 <p class="shortcut-description">${this.escapeHtml(shortcut.url)}</p>
                                                 ${shortcut.description ? `<p class="shortcut-description small">${this.escapeHtml(shortcut.description)}</p>` : ''}
+                                                ${!isOwner ? `<span class="badge bg-info mb-2"><i class="bi bi-share"></i> Shared</span>` : ''}
                                                 <div class="btn-group btn-group-sm mt-3" role="group">
+                                                        ${isOwner ? `
                                                         <button class="btn btn-outline-secondary edit-shortcut-btn" data-id="${shortcut.id}">
                                                                 <i class="bi bi-pencil"></i> Edit
                                                         </button>
                                                         <button class="btn btn-outline-danger delete-shortcut-btn" data-id="${shortcut.id}">
                                                                 <i class="bi bi-trash"></i> Delete
                                                         </button>
+                                                        ` : ''}
                                                         <a href="${this.escapeHtml(shortcut.url)}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">
                                                                 <i class="bi bi-arrow-up-right"></i> Open
                                                         </a>
@@ -90,6 +95,7 @@ export class DashboardPage extends Page {
                                         </div>
                                 </div>
       `
+                }
             )
             .join('')
     }
