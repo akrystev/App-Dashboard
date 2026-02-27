@@ -18,46 +18,69 @@ A multi-page web app that provides a personal shortcuts dashboard. Users registe
 - Auth: Supabase Auth with role checks via `user_roles`
 - Hosting: Netlify (see `netlify.toml`)
 
-## Database Schema (High Level)
+## Database Schema
+
+The database consists of 6 main tables with relationships:
 
 ```mermaid
 erDiagram
-   auth_users {
-      uuid id PK
-      text email
-   }
+  auth_users {
+    uuid id PK
+    text email
+  }
 
-   user_profiles {
-      uuid user_id PK
-      text display_name
-      text avatar_url
-      timestamptz created_at
-   }
+  users {
+    uuid id PK
+    text email
+    text role
+    text status
+    timestamptz created_at
+  }
 
-   user_roles {
-      uuid user_id
-      app_role role
-      timestamptz assigned_at
-   }
+  user_profiles {
+    uuid user_id PK
+    text display_name
+    text avatar_url
+    timestamptz created_at
+  }
 
-   shortcuts {
-      uuid id PK
-      uuid owner_id
-      text title
-      text url
-      text icon_url
-      text visibility
-      timestamptz created_at
-   }
+  user_roles {
+    uuid id PK
+    uuid user_id FK
+    app_role role
+    timestamptz assigned_at
+  }
 
-   auth_users ||--|| user_profiles : has
-   auth_users ||--o{ user_roles : assigned
-   auth_users ||--o{ shortcuts : owns
+  shortcuts {
+    uuid id PK
+    uuid user_id FK
+    text name
+    text url
+    text icon
+    text description
+    timestamptz created_at
+  }
+
+  shortcut_visibility {
+    uuid id PK
+    uuid shortcut_id FK
+    uuid user_id FK
+    timestamptz granted_at
+    uuid granted_by FK
+  }
+
+  auth_users ||--|| users : extends
+  users ||--|| user_profiles : has
+  users ||--o{ user_roles : assigned
+  users ||--o{ shortcuts : owns
+  shortcuts ||--o{ shortcut_visibility : shared_with
+  users ||--o{ shortcut_visibility : can_access
 ```
 
 Notes:
 - `app_role` is an enum with values `user` and `admin`.
-- RLS policies restrict edit access to owners and admins.
+- RLS policies restrict data access to owners and admins.
+- `shortcut_visibility` tracks which users can access admin-created shortcuts.
 
 ## Local Development Setup
 
