@@ -9,6 +9,7 @@ A multi-page web app that provides a personal shortcuts dashboard. Users registe
 - Admin panel for user and shortcut moderation
 - Role-based access (admin/user) with RLS policies
 - Supabase Storage support for user files (icons, images)
+- **Responsive design** with Bootstrap 5 (mobile, tablet, desktop)
 - Vite-powered build and Bootstrap UI
 
 ## Architecture
