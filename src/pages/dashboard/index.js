@@ -54,6 +54,11 @@ export class DashboardPage extends Page {
         return typeof iconValue === 'string' && /^https?:\/\//i.test(iconValue)
     }
 
+    isBucketMissingError(error) {
+        const message = (error?.message || '').toLowerCase()
+        return message.includes('bucket not found') || error?.statusCode === 404
+    }
+
     getShortcutIconHtml(shortcut) {
         const iconValue = shortcut.icon || 'bi-link-45deg'
         if (this.isCustomIcon(iconValue)) {
@@ -107,19 +112,28 @@ export class DashboardPage extends Page {
 
     async uploadShortcutIcon(file) {
         const extension = (file.name.split('.').pop() || 'png').toLowerCase()
-        const fileName = `${this.user.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${extension}`
+        const randomPart = Math.random().toString(36).slice(2)
+        const bucketCandidates = ['shortcut-icons', 'profile-pictures', 'avatars']
+        let lastError = null
 
-        const { error: uploadError } = await supabase.storage
-            .from('shortcut-icons')
-            .upload(fileName, file, { upsert: false })
+        for (const bucket of bucketCandidates) {
+            const fileName = `${this.user.id}/shortcuts/${Date.now()}-${randomPart}.${extension}`
+            const { error: uploadError } = await supabase.storage
+                .from(bucket)
+                .upload(fileName, file, { upsert: false })
 
-        if (uploadError) throw uploadError
+            if (!uploadError) {
+                const { data } = supabase.storage
+                    .from(bucket)
+                    .getPublicUrl(fileName)
 
-        const { data } = supabase.storage
-            .from('shortcut-icons')
-            .getPublicUrl(fileName)
+                return data.publicUrl
+            }
 
-        return data.publicUrl
+            lastError = uploadError
+        }
+
+        throw lastError || new Error('Unable to upload personal icon')
     }
 
     renderShortcuts() {
@@ -309,6 +323,7 @@ export class DashboardPage extends Page {
         const description = this.container.querySelector('#shortcutDescription').value.trim()
 
         let icon = iconInputValue
+        let uploadWarning = ''
 
         if (!name || !url) {
             this.showError('Please fill in all required fields')
@@ -319,7 +334,16 @@ export class DashboardPage extends Page {
 
         try {
             if (iconFile) {
-                icon = await this.uploadShortcutIcon(iconFile)
+                try {
+                    icon = await this.uploadShortcutIcon(iconFile)
+                } catch (uploadError) {
+                    if (this.isBucketMissingError(uploadError)) {
+                        icon = iconInputValue
+                        uploadWarning = ' Personal icon was not uploaded because storage bucket is not configured yet.'
+                    } else {
+                        throw uploadError
+                    }
+                }
             }
 
             if (id) {
@@ -331,7 +355,7 @@ export class DashboardPage extends Page {
                     .eq('user_id', this.user.id)
 
                 if (error) throw error
-                this.showSuccess('Shortcut updated successfully')
+                this.showSuccess(`Shortcut updated successfully.${uploadWarning}`)
             } else {
                 // Create new
                 const { data: newShortcut, error } = await supabase
@@ -363,7 +387,7 @@ export class DashboardPage extends Page {
                     }
                 }
 
-                this.showSuccess('Shortcut created successfully')
+                this.showSuccess(`Shortcut created successfully.${uploadWarning}`)
             }
 
             // Reload shortcuts
