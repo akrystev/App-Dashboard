@@ -189,6 +189,8 @@ export class DashboardPage extends Page {
 
     async loadShortcuts() {
         try {
+            console.log('🔄 Loading shortcuts for user:', this.user.id)
+
             // Load the user's own shortcuts
             const { data: ownShortcuts, error: ownError } = await supabase
                 .from('shortcuts')
@@ -196,7 +198,12 @@ export class DashboardPage extends Page {
                 .eq('user_id', this.user.id)
                 .order('created_at', { ascending: false })
 
-            if (ownError) throw ownError
+            if (ownError) {
+                console.error('❌ Error loading own shortcuts:', ownError)
+                throw ownError
+            }
+
+            console.log('✅ Loaded own shortcuts:', ownShortcuts?.length || 0)
 
             // Load shortcuts shared with the user via visibility
             const { data: sharedShortcuts, error: sharedError } = await supabase
@@ -207,7 +214,12 @@ export class DashboardPage extends Page {
                 `)
                 .eq('user_id', this.user.id)
 
-            if (sharedError) throw sharedError
+            if (sharedError) {
+                console.error('❌ Error loading shared shortcuts:', sharedError)
+                throw sharedError
+            }
+
+            console.log('✅ Loaded shared shortcut entries:', sharedShortcuts?.length || 0)
 
             // Combine shortcuts, removing duplicates
             const shortcutMap = new Map()
@@ -228,8 +240,11 @@ export class DashboardPage extends Page {
 
             this.shortcuts = Array.from(shortcutMap.values())
                 .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+
+            console.log('✅ Total shortcuts after deduplication:', this.shortcuts.length)
         } catch (err) {
-            console.warn('Error loading shortcuts:', err)
+            console.error('❌ Critical error loading shortcuts:', err)
+            this.showError('Failed to load shortcuts: ' + err.message)
             this.shortcuts = []
         }
     }
