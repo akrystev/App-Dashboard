@@ -69,6 +69,18 @@
                         </div>
                     </div>
                     <div class="mb-3">
+                        <label for="shortcutIconFile" class="form-label">
+                            <i class="bi bi-image me-2"></i>Personal Icon (optional)
+                        </label>
+                        <input type="file" class="form-control" id="shortcutIconFile" accept="image/*">
+                        <div class="form-text">
+                            Upload PNG/JPG/SVG/WebP up to 2MB. If selected, this image overrides the icon class.
+                        </div>
+                        <div class="mt-2 d-none" id="shortcutIconPreviewWrapper">
+                            <img id="shortcutIconPreview" alt="Icon preview" class="shortcut-icon-preview">
+                        </div>
+                    </div>
+                    <div class="mb-3">
                         <label for="shortcutDescription" class="form-label">
                             <i class="bi bi-chat me-2"></i>Description
                         </label>

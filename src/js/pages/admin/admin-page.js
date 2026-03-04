@@ -126,6 +126,14 @@ export class AdminPage extends Page {
                     <small class="text-muted">Bootstrap icon class (e.g., bi-google, bi-github)</small>
                   </div>
                   <div class="mb-3">
+                    <label for="shortcutIconFile" class="form-label">Personal Icon (optional)</label>
+                    <input type="file" class="form-control" id="shortcutIconFile" accept="image/*">
+                    <small class="text-muted">Upload PNG/JPG/SVG/WebP up to 2MB. Overrides icon class when provided.</small>
+                    <div class="mt-2 d-none" id="shortcutIconPreviewWrapper">
+                      <img id="shortcutIconPreview" alt="Icon preview" style="width: 36px; height: 36px; object-fit: cover; border-radius: 8px; border: 1px solid #dee2e6;">
+                    </div>
+                  </div>
+                  <div class="mb-3">
                     <label for="shortcutDescription" class="form-label">Description</label>
                     <textarea class="form-control" id="shortcutDescription" rows="3" placeholder="Optional description"></textarea>
                   </div>

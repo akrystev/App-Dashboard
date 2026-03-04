@@ -50,6 +50,78 @@ export class DashboardPage extends Page {
         this.setPageTitle()
     }
 
+    isCustomIcon(iconValue) {
+        return typeof iconValue === 'string' && /^https?:\/\//i.test(iconValue)
+    }
+
+    getShortcutIconHtml(shortcut) {
+        const iconValue = shortcut.icon || 'bi-link-45deg'
+        if (this.isCustomIcon(iconValue)) {
+            return `<img src="${this.escapeHtml(iconValue)}" alt="${this.escapeHtml(shortcut.name)} icon" class="shortcut-icon-image">`
+        }
+        return `<i class="bi ${this.escapeHtml(iconValue)}"></i>`
+    }
+
+    toggleIconPreview(source) {
+        const wrapper = this.container.querySelector('#shortcutIconPreviewWrapper')
+        const preview = this.container.querySelector('#shortcutIconPreview')
+        if (!wrapper || !preview) return
+
+        if (source) {
+            preview.src = source
+            wrapper.classList.remove('d-none')
+            return
+        }
+
+        preview.removeAttribute('src')
+        wrapper.classList.add('d-none')
+    }
+
+    handleShortcutIconFileChange(e) {
+        const file = e.target.files?.[0]
+        if (!file) {
+            this.toggleIconPreview('')
+            return
+        }
+
+        if (!file.type.startsWith('image/')) {
+            e.target.value = ''
+            this.toggleIconPreview('')
+            this.showError('Please upload an image file for personal icon')
+            return
+        }
+
+        if (file.size > 2 * 1024 * 1024) {
+            e.target.value = ''
+            this.toggleIconPreview('')
+            this.showError('Personal icon size cannot exceed 2MB')
+            return
+        }
+
+        const reader = new FileReader()
+        reader.onload = (event) => {
+            this.toggleIconPreview(event.target?.result || '')
+        }
+        reader.readAsDataURL(file)
+    }
+
+    async uploadShortcutIcon(file) {
+        const extension = (file.name.split('.').pop() || 'png').toLowerCase()
+        const fileName = `${this.user.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${extension}`
+
+        const { error: uploadError } = await supabase.storage
+            .from('shortcut-icons')
+            .upload(fileName, file, { upsert: false })
+
+        if (uploadError) throw uploadError
+
+        const { data } = supabase.storage
+            .from('shortcut-icons')
+            .getPublicUrl(fileName)
+
+        return data.publicUrl
+    }
+
     renderShortcuts() {
         if (this.shortcuts.length === 0) {
             return `
@@ -74,7 +146,7 @@ export class DashboardPage extends Page {
                                 <div class="shortcut-item">
                                         <div class="shortcut-card h-100">
                                                 <div class="shortcut-icon">
-                                                        <i class="bi ${shortcut.icon || 'bi-link-45deg'}"></i>
+                                                ${this.getShortcutIconHtml(shortcut)}
                                                 </div>
                                                 <h5 class="shortcut-title">${this.escapeHtml(shortcut.name)}</h5>
                                                 <p class="shortcut-description">${this.escapeHtml(shortcut.url)}</p>
@@ -154,6 +226,7 @@ export class DashboardPage extends Page {
         const addShortcutBtn = this.container.querySelector('#addShortcutBtn')
         const addFirstShortcutBtn = this.container.querySelector('#addFirstShortcutBtn')
         const saveShortcutBtn = this.container.querySelector('#saveShortcutBtn')
+        const shortcutIconFile = this.container.querySelector('#shortcutIconFile')
         const editButtons = this.container.querySelectorAll('.edit-shortcut-btn')
         const deleteButtons = this.container.querySelectorAll('.delete-shortcut-btn')
 
@@ -179,6 +252,7 @@ export class DashboardPage extends Page {
 
         // Save shortcut
         saveShortcutBtn?.addEventListener('click', () => this.saveShortcut())
+        shortcutIconFile?.addEventListener('change', (e) => this.handleShortcutIconFileChange(e))
 
         // Edit buttons
         editButtons.forEach(btn => {
@@ -204,6 +278,7 @@ export class DashboardPage extends Page {
         this.container.querySelector('#modalTitle').textContent = 'Add Shortcut'
         this.container.querySelector('#shortcutForm').reset()
         this.container.querySelector('#shortcutForm').dataset.id = ''
+        this.toggleIconPreview('')
         modal.show()
     }
 
@@ -215,7 +290,9 @@ export class DashboardPage extends Page {
         this.container.querySelector('#modalTitle').textContent = 'Edit Shortcut'
         this.container.querySelector('#shortcutName').value = shortcut.name
         this.container.querySelector('#shortcutUrl').value = shortcut.url
-        this.container.querySelector('#shortcutIcon').value = shortcut.icon || 'bi-link-45deg'
+        this.container.querySelector('#shortcutIcon').value = this.isCustomIcon(shortcut.icon) ? 'bi-link-45deg' : (shortcut.icon || 'bi-link-45deg')
+        this.container.querySelector('#shortcutIconFile').value = ''
+        this.toggleIconPreview(this.isCustomIcon(shortcut.icon) ? shortcut.icon : '')
         this.container.querySelector('#shortcutDescription').value = shortcut.description || ''
         this.container.querySelector('#shortcutForm').dataset.id = id
         modal.show()
@@ -226,8 +303,12 @@ export class DashboardPage extends Page {
         const id = form.dataset.id
         const name = this.container.querySelector('#shortcutName').value.trim()
         const url = this.container.querySelector('#shortcutUrl').value.trim()
-        const icon = this.container.querySelector('#shortcutIcon').value.trim() || 'bi-link-45deg'
+        const iconInputValue = this.container.querySelector('#shortcutIcon').value.trim() || 'bi-link-45deg'
+        const iconFileInput = this.container.querySelector('#shortcutIconFile')
+        const iconFile = iconFileInput?.files?.[0]
         const description = this.container.querySelector('#shortcutDescription').value.trim()
+
+        let icon = iconInputValue
 
         if (!name || !url) {
             this.showError('Please fill in all required fields')
@@ -237,6 +318,10 @@ export class DashboardPage extends Page {
         this.isLoading = true
 
         try {
+            if (iconFile) {
+                icon = await this.uploadShortcutIcon(iconFile)
+            }
+
             if (id) {
                 // Update existing
                 const { error } = await supabase

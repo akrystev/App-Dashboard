@@ -10,6 +10,79 @@ export class ShortcutsManagement {
     this.shortcutVisibility = new Map()
   }
 
+  isCustomIcon(iconValue) {
+    return typeof iconValue === 'string' && /^https?:\/\//i.test(iconValue)
+  }
+
+  renderShortcutIcon(shortcut) {
+    const iconValue = shortcut.icon || 'bi-link-45deg'
+    if (this.isCustomIcon(iconValue)) {
+      return `<img src="${this.escapeHtml(iconValue)}" alt="${this.escapeHtml(shortcut.name)} icon" style="width: 32px; height: 32px; object-fit: cover; border-radius: 8px; border: 1px solid #dee2e6;">`
+    }
+
+    return `<i class="bi ${this.escapeHtml(iconValue)} text-primary fs-4"></i>`
+  }
+
+  toggleIconPreview(source) {
+    const wrapper = document.getElementById('shortcutIconPreviewWrapper')
+    const preview = document.getElementById('shortcutIconPreview')
+    if (!wrapper || !preview) return
+
+    if (source) {
+      preview.src = source
+      wrapper.classList.remove('d-none')
+      return
+    }
+
+    preview.removeAttribute('src')
+    wrapper.classList.add('d-none')
+  }
+
+  handleShortcutIconFileChange(e) {
+    const file = e.target.files?.[0]
+    if (!file) {
+      this.toggleIconPreview('')
+      return
+    }
+
+    if (!file.type.startsWith('image/')) {
+      e.target.value = ''
+      this.toggleIconPreview('')
+      this.adminPage.showError('Please upload an image file for personal icon')
+      return
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+      e.target.value = ''
+      this.toggleIconPreview('')
+      this.adminPage.showError('Personal icon size cannot exceed 2MB')
+      return
+    }
+
+    const reader = new FileReader()
+    reader.onload = (event) => {
+      this.toggleIconPreview(event.target?.result || '')
+    }
+    reader.readAsDataURL(file)
+  }
+
+  async uploadShortcutIcon(file) {
+    const extension = (file.name.split('.').pop() || 'png').toLowerCase()
+    const fileName = `${this.adminPage.user.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${extension}`
+
+    const { error: uploadError } = await supabase.storage
+      .from('shortcut-icons')
+      .upload(fileName, file, { upsert: false })
+
+    if (uploadError) throw uploadError
+
+    const { data } = supabase.storage
+      .from('shortcut-icons')
+      .getPublicUrl(fileName)
+
+    return data.publicUrl
+  }
+
   async loadShortcutVisibility() {
     try {
       const { data, error } = await supabase
@@ -68,7 +141,7 @@ export class ShortcutsManagement {
             const visibleUsers = this.shortcutVisibility.get(shortcut.id) || []
             return `
               <tr>
-                <td><i class="bi ${shortcut.icon || 'bi-link-45deg'} text-primary fs-4"></i></td>
+                <td>${this.renderShortcutIcon(shortcut)}</td>
                 <td>${this.escapeHtml(shortcut.name)}</td>
                 <td>
                   <a href="${this.escapeHtml(shortcut.url)}" target="_blank" rel="noopener" class="text-truncate d-inline-block" style="max-width: 300px;">
@@ -104,10 +177,12 @@ export class ShortcutsManagement {
   setupEventListeners(container) {
     const deleteButtons = container.querySelectorAll('.delete-shortcut-btn')
     const createShortcutBtn = container.querySelector('#createShortcutBtn')
+    const shortcutIconFile = document.getElementById('shortcutIconFile')
     const manageAccessButtons = container.querySelectorAll('.manage-access-btn')
     const saveAccessBtn = container.querySelector('#saveAccessBtn')
 
     createShortcutBtn?.addEventListener('click', () => this.openCreateShortcutModal())
+    shortcutIconFile?.addEventListener('change', (e) => this.handleShortcutIconFileChange(e))
 
     deleteButtons.forEach(btn => {
       btn.addEventListener('click', () => {
@@ -136,6 +211,7 @@ export class ShortcutsManagement {
     // Reset form
     const form = document.getElementById('createShortcutForm')
     if (form) form.reset()
+    this.toggleIconPreview('')
 
     modal.show()
   }
@@ -258,7 +334,8 @@ export class ShortcutsManagement {
 
     const name = form.querySelector('#shortcutName')?.value?.trim()
     const url = form.querySelector('#shortcutUrl')?.value?.trim()
-    const icon = form.querySelector('#shortcutIcon')?.value?.trim()
+    const iconInputValue = form.querySelector('#shortcutIcon')?.value?.trim()
+    const iconFile = form.querySelector('#shortcutIconFile')?.files?.[0]
     const description = form.querySelector('#shortcutDescription')?.value?.trim()
 
     if (!name || !url) {
@@ -267,6 +344,10 @@ export class ShortcutsManagement {
     }
 
     try {
+      const icon = iconFile
+        ? await this.uploadShortcutIcon(iconFile)
+        : (iconInputValue || 'bi-link-45deg')
+
       // Create shortcut
       const { data: shortcut, error: createError } = await supabase
         .from('shortcuts')
