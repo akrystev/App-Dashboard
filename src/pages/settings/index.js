@@ -156,7 +156,8 @@ export class SettingsPage extends Page {
 
             if (profilePictureInput.files.length > 0) {
                 const file = profilePictureInput.files[0]
-                const fileName = `${this.user.id}-${Date.now()}`
+                const fileExt = file.name.split('.').pop()
+                const fileName = `${this.user.id}/${Date.now()}.${fileExt}`
 
                 const { error: uploadError } = await supabase.storage
                     .from('profile-pictures')
